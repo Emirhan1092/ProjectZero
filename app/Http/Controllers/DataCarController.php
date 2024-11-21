@@ -104,8 +104,34 @@ class DataCarController extends Controller
             return response()->json([]);
         }
 
-        return response()->json($log2->values());
+        $carData = $log2->groupBy('car_id')->map(function ($logItems) {
+            $result = [];
+
+            foreach ($logItems as $logItem) {
+                $result[] = [
+                    'key'   => $logItem->name,
+                    'value' => $logItem->value
+                ];
+            }
+
+            $car = Car::where('car_id', $logItems->first()->car_id)->first();
+
+            if ($car) {
+                $result['car_id'] = $logItems->first()->car_id;
+                $result['Name'] = $car->name;
+                $result['Brand'] = $car->brand_name;
+            }
+
+            return $result;
+        });
+
+        $carData = $carData->filter(function ($car) {
+            return $car !== null;
+        });
+
+        return response()->json($carData->values());
     }
+
 
 
 
