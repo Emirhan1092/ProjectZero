@@ -29,7 +29,6 @@
         </select>
     </div>
 
-
     <div class="modal fade" id="showCarsModal" tabindex="-1" aria-labelledby="showCarsModalLabel" aria-hidden="true">
         <div class="modal-dialog">
             <div class="modal-content">
@@ -83,7 +82,7 @@
                     $('#modelSelect').empty().append('<option value="">Model Seçiniz</option>');
                 }
             });
-            var creatForData = [];
+            var createForData = [];
             $('#modelSelect').on('change', function () {
                 var modelName = $(this).val();
                 var catalogName = $('#catalogSelect').val();
@@ -93,8 +92,8 @@
                         url: '/cars/catalog/' + catalogName + '/models/' + modelName + '/parameters',
                         method: 'GET',
                         success: function (data) {
-                            creatForData = data;
-                            console.log("createfordata", creatForData);
+                            createForData = data;
+                            console.log("createfordata", createForData);
                             $('#parametersSelectContainer').remove();
                             $('#dynamicShowCarsButton').remove();
 
@@ -153,21 +152,31 @@
 
             var selectedCarData = [];
 
-            $(document).on('change', '[id^="parameter_"], [id^="parameter2_"]', function () {
+            $(document).on('change', '[id^="parameter2_"]', function () {
 
                 var changedId = $(this).attr('id');
                 var changedValue = $(this).val();
 
-                if (changedId.startsWith("parameter_")) {
-                    var key = changedId.replace('parameter_', '');
-                    $('#parameter2_' + key).val(changedValue);
-                } else if (changedId.startsWith("parameter2_")) {
+                if (changedId.startsWith("parameter2_")) {
                     var key = changedId.replace('parameter2_', '');
                     $('#parameter_' + key).val(changedValue);
+
                 }
 
                 updateSelectedValues();
             });
+            $('#showCarsModal').on('shown.bs.modal', function () {
+                $('[id^="parameter_"]').each(function () {
+                    var key = $(this).attr('id').replace('parameter_', '');
+                    var value = $(this).val();
+
+                    var targetSelect = $('#parameter2_' + key);
+                    if (targetSelect.length > 0) {
+                        targetSelect.val(value);
+                    }
+                });
+            });
+
 
             function updateSelectedValues() {
                 var selectedValues = [];
@@ -175,8 +184,11 @@
                 $('[id^="parameter_"]').each(function () {
                     var selectedValue = $(this).val();
                     var key = $(this).attr('id').replace('parameter_', '');
-                    if (selectedValue) {
-                        selectedValues.push({ key: key, value: selectedValue });
+                    if (selectedValue && !selectedValues.some(v => v.key === key)) {
+                        selectedValues.push({key: key, value: selectedValue});
+                        console.log("selectedValues1 ", selectedValues);
+
+
                     }
                 });
 
@@ -184,9 +196,12 @@
                     var selectedValue = $(this).val();
                     var key = $(this).attr('id').replace('parameter2_', '');
                     if (selectedValue && !selectedValues.some(v => v.key === key)) {
-                        selectedValues.push({ key: key, value: selectedValue });
+                        selectedValues.push({key: key, value: selectedValue});
+                        console.log("selectedValues ", selectedValues);
+
                     }
                 });
+
                 console.log('Seçilen Değerler:', selectedValues);
                 var modelName = $('#modelSelect').val();
 
@@ -202,13 +217,11 @@
 
                         if (response.length > 0) {
                             selectedCarData = response;
-
+                            updateModalList()
                             console.log("selectedCarData, response ile güncellendi:", selectedCarData);
-                            createShowCarsButton();
                         } else {
-                            createShowCarsButton();
                             selectedCarData = response;
-
+                            updateModalList()
                             console.log('Herhangi bir parametre bulunamadı');
                         }
                     },
@@ -217,87 +230,102 @@
                         alert('Bir hata oluştu!');
                     }
                 });
-            });
+            }
+
 
             function createShowCarsButton() {
+                var showCarsButton = $('<button id="dynamicShowCarsButton" class="btn btn-primary mt-3">Show Cars</button>');
+                $('body').append(showCarsButton);
 
+            }
+            $(document).on('click', '#dynamicShowCarsButton', function () {
+                modalParameters();
+            });
+
+
+            $(document).on('change', '[id^="parameter2_"]', function () {
+                var modalList = $('#modalParametersList');
+                modalList.empty();
+           });
+
+
+            function modalParameters(){
                 var container2 = $('#parametersSelectContainer2');
+                container2.empty();
+                console.log("caqadawe", createForData);
+                if (Array.isArray(createForData.parameters) && createForData.parameters.length > 0) {
+                    var addedParameters = {};
 
-                if ($('#dynamicShowCarsButton').length === 0) {
-                    var showCarsButton = $('<button id="dynamicShowCarsButton" class="btn btn-primary mt-3">Show Cars</button>');
+                    createForData.parameters.forEach(function (parameterArray) {
+                        if (Array.isArray(parameterArray)) {
+                            parameterArray.forEach(function (parameter) {
+                                if (parameter && parameter.name) {
+                                    if (!addedParameters[parameter.name]) {
+                                        addedParameters[parameter.name] = true;
 
-                    showCarsButton.on('click', function () {
-                        var modalList = $('#modalParametersList');
-                        modalList.empty();
+                                        var parameterDiv = `
+                                                    <div class="form-group d-flex me-3" id="parameterContainer2_${parameter.name}">
+                                                        <label class="me-2">${parameter.name}</label>
+                                                        <select class="form-control" id="parameter2_${parameter.key}" name="parameters2[${parameter.name}]">
+                                                            <option value="">Parametre Seçiniz</option>
+                                                            <option value="${parameter.value}">${parameter.value}</option>
+                                                        </select>
+                                                    </div>`;
+                                        container2.append(parameterDiv);
+                                    } else {
+                                        var select = $('#parameter2_' + parameter.key);
+                                        if (select.length > 0) {
+                                            var existingOptions = select.find('option').map(function () {
+                                                return $(this).val();
+                                            }).get();
 
-                        container2.empty();
+                                            if (parameter.value && !existingOptions.includes(parameter.value)) {
+                                                select.append(`<option value="${parameter.value}">${parameter.value}</option>`);
 
-                        if (Array.isArray(creatForData.parameters) && creatForData.parameters.length > 0) {
-                            var addedParameters = {};
-
-                            creatForData.parameters.forEach(function (parameterArray) {
-                                if (Array.isArray(parameterArray)) {
-                                    parameterArray.forEach(function (parameter) {
-                                        if (parameter && parameter.name) {
-                                            if (!addedParameters[parameter.name]) {
-                                                addedParameters[parameter.name] = true;
-
-                                                var parameterDiv = '<div class="form-group d-flex me-3" id="parameterContainer2_' + parameter.name + '">';
-                                                parameterDiv += '<label class="me-2">' + parameter.name + '</label>';
-                                                parameterDiv += '<select class="form-control" id="parameter2_' + parameter.key + '" name="parameters2[' + parameter.name + ']">';
-                                                parameterDiv += '<option value="">Parametre Seçiniz</option>';
-                                                parameterDiv += '<option value="' + parameter.value + '">' + parameter.value + '</option>';
-                                                parameterDiv += '</select></div>';
-
-                                                container2.append(parameterDiv);
-                                            } else {
-                                                var select = $('#parameter2_' + parameter.key);
-                                                if (select.length > 0) {
-                                                    var existingOptions = select.find('option').map(function () {
-                                                        return $(this).val();
-                                                    }).get();
-
-                                                    if (parameter.value && !existingOptions.includes(parameter.value)) {
-                                                        select.append('<option value="' + parameter.value + '">' + parameter.value + '</option>');
-                                                    }
-                                                }
                                             }
                                         }
-                                    });
-                                }
-                            });
-                        }
-
-                        if (selectedCarData.length > 0) {
-                            selectedCarData.forEach(function (parameter1) {
-                                if (parameter1.hasOwnProperty('Name')) {
-                                    modalList.append('<li class="list-group-item"><strong>Name:</strong> ' + parameter1.Name + '</li>');
-                                }
-
-                                if (parameter1.hasOwnProperty('Brand')) {
-                                    modalList.append('<li class="list-group-item"><strong>Brand:</strong> ' + parameter1.Brand + '</li>');
-                                }
-
-                                Object.keys(parameter1).forEach(function (key) {
-                                    if (key !== 'Name' && key !== 'Brand' && key !== 'car_id') {
-                                        modalList.append('<li class="list-group-item">' + parameter1[key].key + ': ' + parameter1[key].value + '</li>');
                                     }
-                                });
 
-                                modalList.append('<li class="list-group-item"></li>');
+                                }
                             });
-                        } else {
-                            modalList.append('<li class="list-group-item">Seçili araç bulunamadı.</li>');
                         }
+                        updateModalList()
 
                         $('#showCarsModal').modal('show');
+
+
+
                     });
 
-                    var container = $('#parametersSelectContainer');
-                    container.append(showCarsButton);
+
+
                 }
             }
+
+            function updateModalList() {
+
+                var modalList = $('#modalParametersList');
+                modalList.empty();
+
+                selectedCarData.forEach(function (car) {
+                    if (car.Name) {
+                        modalList.append(`<li class="list-group-item"><strong>Name:</strong> ${car.Name}</li>`);
+                    }
+                    if (car.Brand) {
+                        modalList.append(`<li class="list-group-item"><strong>Brand:</strong> ${car.Brand}</li>`);
+                    }
+                    Object.keys(car).forEach(function (key) {
+                        if (key !== 'Name' && key !== 'Brand' && key !== 'car_id') {
+                            modalList.append(`<li class="list-group-item">${car[key].key}: ${car[key].value}</li>`);
+                        }
+                    });
+                });
+            }
+
+
         });
+
+
     </script>
 
 
