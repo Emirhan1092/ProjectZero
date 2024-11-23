@@ -57,7 +57,7 @@ Route::group(['middleware' => 'auth'], function () {
     Route::get('/cars/catalog/{catalogName}/models/{modelName}/parameters', [DataCarController::class, 'getParametersByModel']);
     Route::get('/cars/models/{modelName}/parameters', [DataCarController::class, 'carParameterList']);
     Route::get('/cars/catalog', [DataCarController::class, 'list'])->name('catalog.list');
-
+    Route::get('/cars/car_id/{carId}/parameters', [DataCarController::class, 'carGroupList']);
 
 
     Route::get('static-sign-up', function () {

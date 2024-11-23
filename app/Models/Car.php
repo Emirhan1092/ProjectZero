@@ -35,6 +35,11 @@ class Car extends Model
         return $this->belongsTo(CarModel::class , 'model_id' , 'model_id');
     }
 
+    public function carGroup()
+    {
+        return $this->belongsTo(CarGroup::class , 'car_id' , 'car_id');
+    }
+
 
 
 

@@ -22,6 +22,13 @@ class CarGroup extends Model
         return $this->hasMany(CarPart::class, 'car_id', 'car_id');
     }
 
+    public function carGroup()
+    {
+        return $this->hasMany(CarSubGroup::class, 'group_id', 'parent_id');
+    }
+
+
+
 
 
 

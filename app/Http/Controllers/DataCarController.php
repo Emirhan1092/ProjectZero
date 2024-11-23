@@ -4,10 +4,15 @@ namespace App\Http\Controllers;
 
 use App\Models\CarCatalog;
 use App\Models\CarFilter;
+use App\Models\CarGroup;
 use App\Models\CarModel;
 use App\Models\Car;
+use App\Models\CarSchemas;
+use App\Models\CarSubGroup;
 use Dflydev\DotAccessData\Data;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
+use function PHPUnit\Framework\isEmpty;
 
 class DataCarController extends Controller
 {
@@ -115,11 +120,12 @@ class DataCarController extends Controller
             }
 
             $car = Car::where('car_id', $logItems->first()->car_id)->first();
-
+            $carModel = CarModel::where('name', $car->model_name)->first();
             if ($car) {
                 $result['car_id'] = $logItems->first()->car_id;
                 $result['Name'] = $car->name;
                 $result['Brand'] = $car->brand_name;
+                $result['ModelImage'] = $carModel->img;
             }
 
             return $result;
@@ -131,6 +137,56 @@ class DataCarController extends Controller
 
         return response()->json($carData->values());
     }
+
+    public function carGroupList(Request $request)
+    {
+        $result = [];
+
+        $car_id = $request->input('car_id');
+
+        $carGroups = CarGroup::where('car_id', $car_id)->get();
+        foreach ($carGroups as $carGroup) {
+            $subGroupNames = [];
+
+            $carGroups31 = CarSubGroup::where('car_id', $carGroup->car_id)
+                ->where('parent_id', $carGroup->group_id)
+                ->get();
+            $Names = [];
+
+            foreach ($carGroups31 as $carSubGroup) {
+                if (!in_array($carSubGroup->name, array_column($subGroupNames, 'subGroupName'))) {
+                    $subGroupNames[] = [
+                        'subGroupName' => $carSubGroup->name,
+                    ];
+                }
+
+                $carSchemas = CarSchemas::where('group_id', $carSubGroup->group_id)
+                    ->whereNotNull('part_name')
+                    ->whereNotNull('part_group_id')
+                    ->get();
+
+                foreach ($carSchemas as $carSchema) {
+                    $Names[] = [
+                        'partName' => $carSchema->part_name,
+                        'part_group_id' => $carSchema->part_group_id,
+                        'img' => $carSchema->img,
+                    ];
+                }
+            }
+
+            if (!empty($Names)) {
+                $result[] = [
+                    'car_id' => $car_id,
+                    'groupName' => $carGroup->name,
+                    'subGroupNames' => $subGroupNames,
+                    'PartInformations' => $Names,
+                ];
+            }
+        }
+
+        return response()->json($result);
+    }
+
 
 
 
