@@ -174,14 +174,15 @@ class DataCarController extends Controller
                 }
             }
 
-            if (!empty($Names)) {
+
                 $result[] = [
                     'car_id' => $car_id,
+                    'part_id' => $carGroup->group_id,
                     'groupName' => $carGroup->name,
                     'subGroupNames' => $subGroupNames,
                     'PartInformations' => $Names,
                 ];
-            }
+
         }
 
         return response()->json($result);

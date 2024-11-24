@@ -41,9 +41,54 @@
             width: 100%;
             cursor: pointer;
         }
+        #showCarsModal .modal-dialog {
+            max-width: 75%;
+        }
+        .float-container {
+            display: flex; /* Sütunları hizalamak için flex düzeni */
+            gap: 10px; /* Aradaki boşluk */
+            padding: 20px;
+        }
+
+        .float-child {
+            flex: 1; /* Tüm sütunlar eşit genişlikte */
+            padding: 20px;
+            box-sizing: border-box; /* Padding dahil */
+        }
+
+        .float-column {
+            height: 100%; /* Yüksekliği tam yapar */
+        }
+
+        .float-child3 {
+            display: flex;
+            justify-content: space-between;
+        }
 
 
+        /* Resimlerin boyutlarını büyütmek için stil */
+        .custom-img {
+            max-width: 100%;   /* Resim genişliği %100 olacak şekilde */
+            height: 400px;     /* Yüksekliği 400px olarak ayarlayabilirsiniz */
+            object-fit: contain;  /* Resmin boyutunu bozmadan sığdırır */
+        }
+        /* Modal body'sinin kaydırılabilir yapıldığı ve kaydırma çubuğunun eklenmesi */
+        .modal-body {
+            max-height: 70vh;   /* Modal body'nin maksimum yüksekliği */
+            overflow-y: auto;   /* Yalnızca dikey kaydırma çubuğu ekler */
+        }
 
+        /* Yalnızca modal içinde değil, diğer içeriklerin de kaydırılabilir olması */
+        .float-container {
+            display: flex;
+            overflow: hidden;
+        }
+
+        .float-child1, .float-child2 {
+            flex: 1;
+            overflow-y: auto; /* Yalnızca y ekseninde kaydırma çubuğu */
+            max-height: 100%;  /* Yükseklik sınırlaması */
+        }
 
 
     </style>
@@ -69,15 +114,19 @@
     </div>
 
     <div class="modal fade" id="showCarsModal" tabindex="-1" aria-labelledby="showCarsModalLabel" aria-hidden="true">
-        <div class="modal-dialog">
+        <div class="modal-dialog w-50">
             <div class="modal-content">
                 <div class="modal-header">
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
-                <div class="modal-body">
-                    <div id="parametersSelectContainer2" class="d-flex flex-wrap">
+                <div class="modal-body float-container">
+                    <div class="float-child1">
+                        <div id="parametersSelectContainer2" class="float-column green">
+                        </div>
                     </div>
-                    <div id="modalParametersList" class="list-group mt-3">
+                    <div class="float-child2">
+                        <div id="modalParametersList" class="float-column yellow">
+                        </div>
                     </div>
                 </div>
                 <div class="modal-footer">
@@ -86,6 +135,7 @@
             </div>
         </div>
     </div>
+
 
 
 @endsection
@@ -301,6 +351,8 @@
 
             function modalParameters() {
                 var container2 = $('#parametersSelectContainer2');
+                var float1 = $('#float-child1');
+                float1.empty();
                 container2.empty();
                 console.log("caqadawe", createForData);
 
@@ -391,69 +443,62 @@
 
         }
 
-             response1 = [];
+            response1 = [];
             function listCarPartsCatalog(response) {
                 var modalList = $('#modalParametersList');
                 var container2 = $('#parametersSelectContainer2');
                 container2.empty();
                 modalList.empty();
-               response1 = response;
+
+                response1 = response;
+
                 response.forEach(function (car) {
-                    var ul = $('<ul class="p-0 col-12 ul-list-group-item1_' + car.car_id + '" id="' + car.car_id + `"></ul>`);
-                    modalList.append(ul);
+                    var ul = $('<ul class="p-0 col-12 ul-list-group1-item1_' + car.part_id + '" id="list_group1_item1' + car.part_id + `"></ul>`);
+                    container2.append(ul);
 
                     if (car.groupName) {
-                        var groupItem = $('<li class="list-group-item1"> ' + car.groupName + '</li>');
+                        var groupItem = $('<li class="list-group-item1" id="group-' + car.part_id + '">' + car.groupName + '</li>');
                         ul.append(groupItem);
 
+                        var subGroupList = $('<ul class="sub-group-list" style="display: none;"></ul>');
 
+                        groupItem.on('click', function (event) {
+                            event.preventDefault();
 
+                            if (subGroupList.children().length === 0) {
+                                if (car.subGroupNames && car.subGroupNames.length > 0) {
+                                    car.subGroupNames.forEach(function (subname) {
+                                        var subnameItem = $('<li class="list-group-item31 subname-item" id="subgroup-' + subname.subGroupName + '">' + subname.subGroupName + '</li>');
+                                        subGroupList.append(subnameItem);
+                                    });
+                                }
+                                groupItem.append(subGroupList);
+                            }
+
+                            subGroupList.toggle();
+
+                            var rightPane = $('#modalParametersList');
+                            rightPane.empty();
+
+                            console.log("Tıklanan Part ID:", car.part_id);
+                            console.log("Part Informations:", car.PartInformations);
+
+                            car.PartInformations.forEach(function (partInfo) {
+                                var partItem = $('<div class="part-item mb-3">');
+                                partItem.append('<strong>Part Name:</strong> ' + partInfo.partName);
+
+                                var imagePath = partInfo.img.startsWith('//') ? 'https:' + partInfo.img : partInfo.img;
+                                partItem.append('<br><img src="' + imagePath + '" alt="' + partInfo.partName + '" class="custom-img" />');
+
+                                rightPane.append(partItem);
+                            });
+                        });
                     }
                 });
             }
 
-            $(document).on('click', '.list-group-item1', function (event) {
-                event.preventDefault();
-
-                var modalList = $('#modalParametersList');
-                var container2 = $('#parametersSelectContainer2');
-                container2.empty();
-                modalList.empty();
-                var groupItem = $(this);
-                var ul = groupItem.closest('ul');
-                ul.empty();
-                response1.forEach(function (car) {
-                    var ul = $('<ul class="p-0 col-12 ul-list-group-item1_' + car.car_id + '" id="' + car.car_id + `"></ul>`);
-                    modalList.append(ul);
-
-                    if (car.groupName) {
-                        var groupItem = $('<li class="list-group-item1"> ' + car.groupName + '</li>');
-                        ul.append(groupItem);
-
-                        car.subGroupNames.forEach(function(subGroup) {
-                            var subGroupItem = $('<li class="list-group-item1"><strong>SubGroup:</strong> ' + subGroup.subGroupName + '</li>');
-                            ul.append(subGroupItem);
-                        });
-
-                        car.PartInformations.forEach(function(partInfo) {
-                            var partItem = $('<li class="list-group-item">');
-                            partItem.append('<strong>Part Name:</strong> ' + partInfo.partName);
-
-                            var imagePath = partInfo.img.startsWith('//') ? 'https:' + partInfo.img : partInfo.img;
-                            partItem.append('<br><img src="' + imagePath + '" alt="' + partInfo.partName + '" class="img-fluid" style="max-width: 100%; height: auto;" />');
-
-                            ul.append(partItem);
-                        });
 
 
-                    }});
-
-
-
-
-
-
-            });
 
 
 
@@ -461,27 +506,27 @@
             $(document).on('click', '.list-group-item', function () {
                 var car_id = $(this).closest('ul').attr('id');
                 console.log('Tıkla2112:', car_id);
-           $.ajax({
-               url: '/cars/car_id/' + car_id + '/parameters',
-               method: 'GET',
-               data: {
-                   car_id,
-               },
-               traditional: true,
-               success: function (response) {
-                   console.log('Sunucudan gelen yanıt:', response);
-                   listCarPartsCatalog(response);
-               },
-               error: function (xhr, status, error) {
-                   console.error('AJAX hatası:', status, error);
-                   alert('Bir hata oluştu!');
-               }
-           });
+
+                $.ajax({
+                    url: '/cars/car_id/' + car_id + '/parameters',
+                    method: 'GET',
+                    data: { car_id },
+                    traditional: true,
+                    success: function (response) {
+                        console.log('Sunucudan gelen yanıt:', response);
+                        listCarPartsCatalog(response);
+                    },
+                    error: function (xhr, status, error) {
+                        console.error('AJAX hatası:', status, error);
+                        alert('Bir hata oluştu!');
+                    }
+                });
+            });
 
 
 
 
-       });
+
 
 
         });
