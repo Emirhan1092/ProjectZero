@@ -19,4 +19,9 @@ class CarSchemas extends Model
     {
         return $this->belongsTo(CarSubGroup::class , 'group_id' , 'group_id' );
     }
+
+    public function carPart()
+    {
+        return $this->HasMany(CarPart::class , 'part_group_id' , 'group_id' );
+    }
 }

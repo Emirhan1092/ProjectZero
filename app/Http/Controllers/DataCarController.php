@@ -7,6 +7,7 @@ use App\Models\CarFilter;
 use App\Models\CarGroup;
 use App\Models\CarModel;
 use App\Models\Car;
+use App\Models\CarPart;
 use App\Models\CarSchemas;
 use App\Models\CarSubGroup;
 use Dflydev\DotAccessData\Data;
@@ -120,12 +121,10 @@ class DataCarController extends Controller
             }
 
             $car = Car::where('car_id', $logItems->first()->car_id)->first();
-            $carModel = CarModel::where('name', $car->model_name)->first();
             if ($car) {
                 $result['car_id'] = $logItems->first()->car_id;
                 $result['Name'] = $car->name;
                 $result['Brand'] = $car->brand_name;
-                $result['ModelImage'] = $carModel->img;
             }
 
             return $result;
@@ -192,6 +191,27 @@ class DataCarController extends Controller
 
 
 
+    public function getParametersByPartGroup(Request $request)
+    {
+        $random1 = $request->input('partGroupId');
+        $partsInformations = CarPart::join( 'catalog_car_schemas','catalog_car_schemas.part_group_id'  ,'=' , 'catalog_car_parts2.group_id' )
+            ->join('catalog_cars', 'catalog_cars.car_id', '=', 'catalog_car_parts2.car_id')
+            ->join('catalog_models', 'catalog_cars.model_name', '=' , 'catalog_models.name')
+            ->where('catalog_car_parts2.group_id', $random1)
+            ->select('catalog_car_parts2.part_id' ,
+                'catalog_car_parts2.number' ,
+                'catalog_car_parts2.name' ,
+                'catalog_car_parts2.description' ,
+                'catalog_car_parts2.car_id' ,
+                'catalog_car_parts2.group_id' ,
+                'catalog_car_parts2.position_number'
+                ,'catalog_cars.brand_name',
+                'catalog_car_schemas.img as schema_img',
+                'catalog_models.img as model_img'
+            )
+            ->get();
+        return response()->json($partsInformations);
+    }
 
 
 

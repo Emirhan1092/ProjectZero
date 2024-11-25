@@ -9,7 +9,7 @@ class CarPart extends Model
 {
     use HasFactory;
 
-    protected $table = 'catalog_car_parts';
+    protected $table = 'catalog_car_parts2';
 
 
     protected $primaryKey = 'id';
@@ -24,5 +24,9 @@ class CarPart extends Model
         return $this->belongsTo(CarGroup::class , 'car_id', 'car_id');
     }
 
+    public function carSchema()
+    {
+        return $this->belongsTo(CarPart::class , 'group_id', 'part_group_id');
+    }
 
 }

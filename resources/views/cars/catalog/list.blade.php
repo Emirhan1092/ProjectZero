@@ -90,7 +90,6 @@
             max-height: 100%;  /* Yükseklik sınırlaması */
         }
 
-
     </style>
 @endsection
 
@@ -121,7 +120,7 @@
                 </div>
                 <div class="modal-body float-container">
                     <div class="float-child1">
-                        <div id="parametersSelectContainer2" class="float-column green">
+                        <div id="parametersSelectContainer2" class="float-column green ">
                         </div>
                     </div>
                     <div class="float-child2">
@@ -444,6 +443,7 @@
         }
 
             response1 = [];
+            response2 = [];
             function listCarPartsCatalog(response) {
                 var modalList = $('#modalParametersList');
                 var container2 = $('#parametersSelectContainer2');
@@ -488,10 +488,30 @@
                                 partItem.append('<strong>Part Name:</strong> ' + partInfo.partName);
 
                                 var imagePath = partInfo.img.startsWith('//') ? 'https:' + partInfo.img : partInfo.img;
-                                partItem.append('<br><img src="' + imagePath + '" alt="' + partInfo.partName + '" class="custom-img" />');
+                                partItem.append('<br><img src="' + imagePath + '" alt="' + partInfo.partName + '" class="custom-img" id="' + partInfo.part_group_id + '" style="border: 1px solid black;  border-radius: 10px;"/>');
 
                                 rightPane.append(partItem);
+
                             });
+                            $(document).on('click',  'img', function(){
+                               var partGroupId= $(this).attr('id');
+                               console.log("part group ıd 31 " , partGroupId);
+                                $.ajax({
+                                    url: '/car/catalog/'+  partGroupId +'/parameters',
+                                    method: 'GET',
+                                    data: {  partGroupId },
+                                    traditional: true,
+                                    success: function (response) {
+                                        console.log('Sunucudan gelen yanıt Part Group Id:', response);
+                                        partsView(response);
+                                    },
+                                    error: function (xhr, status, error) {
+                                        console.error('AJAX hatası:', status, error);
+                                        alert('Bir hata oluştu!');
+                                    }
+                                });
+                            });
+
                         });
                     }
                 });
@@ -512,9 +532,9 @@
                     method: 'GET',
                     data: { car_id },
                     traditional: true,
-                    success: function (response) {
-                        console.log('Sunucudan gelen yanıt:', response);
-                        listCarPartsCatalog(response);
+                    success: function (response2) {
+                        console.log('Sunucudan gelen yanıt:', response2);
+                        listCarPartsCatalog(response2);
                     },
                     error: function (xhr, status, error) {
                         console.error('AJAX hatası:', status, error);
@@ -522,12 +542,66 @@
                     }
                 });
             });
+            function partsView(response) {
+                var modalList = $('#modalParametersList');
+                var container2 = $('#parametersSelectContainer2');
+                container2.empty();
+                modalList.empty();
+
+                var groupItem = $('<ul class="list-group-item22 text-align:left" id="group-' + response[0].brand_name + '" style="text-align: center;">' +
+                    '<br><strong>' + response[0].brand_name + '</strong> ' +
+                    '<strong>' + response[0].name + '</strong></br>' +
+                    '</ul>');
+                container2.append(groupItem);
+
+                var imagePath = response[0].schema_img.startsWith('//') ? 'https:' + response[0].schema_img : response[0].schema_img;
+                container2.append('<br><img src="' + imagePath + '" alt="' + response[0].brand_name + '" class="custom-img" id="'+ response[0].brand_name+ '" style="border: 1px solid black; border-radius: 10px; display: block; margin: 0 auto; "/>');
 
 
+                response.forEach(function (parts) {
+                    var element = $('<div class="container mt-5"></div>');
+                    modalList.append(element);
+
+                    var card = $(`
+            <div class="card shadow-sm" style="cursor: pointer;">
+                <div class="card-body position-relative">
+                    <span class="text-muted position-absolute top-0 end-0 me-3 mt-2">${parts.position_number}</span>
+                    <h5 class="card-title text-primary">${parts.name}</h5>
+                    <p class="card-text text-muted">${parts.number}</p>
+                </div>
+            </div>
+        `);
+
+                    element.append(card);
+
+                    card.on('click', function () {
+                        var cardFooter = $(`
+        <div class="card-footer bg-light border-top">
+            <ul class="sub-group-list">
+                <li class="p-0 col-12 ul-list-group-item_${parts.part_id}" id="${parts.part_id}" style="display: flex; align-items: center; justify-content: space-between;">
+                    <span>${parts.brand_name}&nbsp;&nbsp;&nbsp;&nbsp;${parts.part_id}</span>
+                    <button class="btn btn-link p-0 ms-3" style="font-size: 20px; cursor: pointer; display: flex; align-items: center;">
+                        <span class="material-symbols-outlined" style="line-height: 1;">
+                            shopping_cart
+                        </span>
+                    </button>
+                </li>
+            </ul>
+        </div>
+    `);
+                        if (card.find('.card-footer').length > 0) {
+                            card.find('.card-footer').toggle();
+                        } else {
+                            card.append(cardFooter);
+                        }
 
 
+                    });
+
+                });
 
 
+            }
 
         });
 
