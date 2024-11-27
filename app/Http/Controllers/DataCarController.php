@@ -194,17 +194,17 @@ class DataCarController extends Controller
     public function getParametersByPartGroup(Request $request)
     {
         $random1 = $request->input('partGroupId');
-        $partsInformations = CarPart::join( 'catalog_car_schemas','catalog_car_schemas.part_group_id'  ,'=' , 'catalog_car_parts2.group_id' )
-            ->join('catalog_cars', 'catalog_cars.car_id', '=', 'catalog_car_parts2.car_id')
+        $partsInformations = CarPart::join( 'catalog_car_schemas','catalog_car_schemas.part_group_id'  ,'=' , 'catalog_car_parts.group_id' )
+            ->join('catalog_cars', 'catalog_cars.car_id', '=', 'catalog_car_parts.car_id')
             ->join('catalog_models', 'catalog_cars.model_name', '=' , 'catalog_models.name')
-            ->where('catalog_car_parts2.group_id', $random1)
-            ->select('catalog_car_parts2.part_id' ,
-                'catalog_car_parts2.number' ,
-                'catalog_car_parts2.name' ,
-                'catalog_car_parts2.description' ,
-                'catalog_car_parts2.car_id' ,
-                'catalog_car_parts2.group_id' ,
-                'catalog_car_parts2.position_number'
+            ->where('catalog_car_parts.group_id', $random1)
+            ->select('catalog_car_parts.part_id' ,
+                'catalog_car_parts.number' ,
+                'catalog_car_parts.name' ,
+                'catalog_car_parts.description' ,
+                'catalog_car_parts.car_id' ,
+                'catalog_car_parts.group_id' ,
+                'catalog_car_parts.position_number'
                 ,'catalog_cars.brand_name',
                 'catalog_car_schemas.img as schema_img',
                 'catalog_models.img as model_img'
@@ -213,7 +213,15 @@ class DataCarController extends Controller
         return response()->json($partsInformations);
     }
 
+    public function getShoppingCart($part_id , $group_id)
+    {
+      $result = [
+          'part_id' => $part_id,
+          'group_id' => $group_id,
+      ];
 
+        return response()->json($result);
+    }
 
 
     public function list()

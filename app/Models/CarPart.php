@@ -9,7 +9,7 @@ class CarPart extends Model
 {
     use HasFactory;
 
-    protected $table = 'catalog_car_parts2';
+    protected $table = 'catalog_car_parts';
 
 
     protected $primaryKey = 'id';

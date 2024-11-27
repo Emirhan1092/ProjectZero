@@ -7,6 +7,7 @@ use App\Http\Controllers\InfoUserController;
 use App\Http\Controllers\RegisterController;
 use App\Http\Controllers\ResetController;
 use App\Http\Controllers\SessionsController;
+use App\Http\Controllers\ShoppingCartController;
 use App\Http\Controllers\UserController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Password;
@@ -59,6 +60,13 @@ Route::group(['middleware' => 'auth'], function () {
     Route::get('/cars/catalog', [DataCarController::class, 'list'])->name('catalog.list');
     Route::get('/cars/car_id/{carId}/parameters', [DataCarController::class, 'carGroupList']);
     Route::get('car/catalog/{part_group_id}/parameters' , [DataCarController::class, 'getParametersByPartGroup']);
+    Route::match(['get', 'post'],'cars/shoppingCart/{partId}/{group_id}/parameters', [DataCarController::class, 'getShoppingCart']);
+    Route::get('/shoppingCart/partId/{partId}/groupId/{groupId}/parameters', [ShoppingCartController::class, 'getShoppingCartPartGroup']);
+    Route::get('/shoppingCart' , [ShoppingCartController::class, 'getShoppingCartPart'])->name('shopping.cart');
+    Route::get('/shoppingCart/List' , [ShoppingCartController::class, 'list'])->name('shopping.cart.list');
+    Route::get('/shopping-cart/increase/{user_id}/{group_id}/{part_id}', [ShoppingCartController::class, 'increaseQuantity'])->name('shoppingCart.increaseQuantity');
+    Route::match(['get', 'post'] ,'/cart/decrease-quantity/{userId}/{groupId}/{partId}', [ShoppingCartController::class, 'decreaseQuantity']);
+
 
 
     Route::get('static-sign-up', function () {

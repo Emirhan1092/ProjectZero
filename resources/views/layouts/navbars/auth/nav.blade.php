@@ -16,13 +16,12 @@
             </div>
             <ul class="navbar-nav  justify-content-end">
                 <li class="nav-item d-flex align-items-center justify-content-between">
-                    <!-- Kullanıcı Profili Bağlantısı -->
                     <a class="nav-link d-flex align-items-center {{ Request::is('user-profile') ? 'active' : '' }}" href="{{ url('user-profile') }}">
                         <i class="fa fa-user me-1"></i>
                         <span class="d-sm-inline d-none text-body font-weight-bold px-0 ms-3 ">Profile</span>
                     </a>
-
-                    <!-- Oturum Kapatma Bağlantısı -->
+                </li>
+                <li>
                     <a href="{{ url('/logout') }}" class="nav-link text-body font-weight-bold px-0 ms-3 d-flex align-items-center">
                         <span class="d-sm-inline d-none">Sign Out</span>
                     </a>
