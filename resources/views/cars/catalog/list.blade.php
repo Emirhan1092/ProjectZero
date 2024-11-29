@@ -56,6 +56,13 @@
             box-sizing: border-box;
         }
 
+
+        .datalist-wrapper{
+
+
+            display: inline-block;
+            width: 100%;
+        }
         .float-column {
             height: 100%;
         }
@@ -68,7 +75,13 @@
 
         .custom-img {
             max-width: 100%;
-            height: 400px;
+            height: 500px;
+            object-fit: contain;
+        }
+
+        .custom-img1 {
+            max-width: 100%;
+            height: 500px;
             object-fit: contain;
         }
         .modal-body {
@@ -97,13 +110,45 @@
             margin-bottom: 0 ; !important;
         }
 
+        .center-container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            width: 100%;
+        }
+
+
+
+
+        #parametersSelectContainer {
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 15px;
+            padding: 20px 0;
+        }
+
+        .form-group {
+            width: 100%;
+            max-width: 400px;
+            margin: 10px auto;
+            box-sizing: border-box;
+        }
+
+        .form-control {
+            width: 100%;
+            box-sizing: border-box;
+        }
+
+
+
 
     </style>
 @endsection
 
 @section("content")
+    <div class="row justify-content-center">
 
-    <div class="form-group">
+    <div class="form-group col-md-6">
         <label for="catalogSelect">Car Katalog</label>
         <select class="form-control" id="catalogSelect">
             <option value="">Catalog Seçiniz</option>
@@ -112,12 +157,15 @@
             @endforeach
         </select>
     </div>
+    </div>
+    <div class="row justify-content-center">
 
-    <div class="form-group">
+    <div class="form-group col-md-6">
         <label for="modelSelect">Models</label>
         <select class="form-control" id="modelSelect">
             <option value="">Model Seçiniz</option>
         </select>
+    </div>
     </div>
 
     <div class="modal fade" id="showCarsModal" tabindex="-1" aria-labelledby="showCarsModalLabel" aria-hidden="true">
@@ -125,7 +173,7 @@
             <div class="modal-content">
                 <div class="modal-header pb-0 mb-0" id ="modal-header">
                 </div>
-                <div class="modal-body float-container">
+                <div class="modal-body float-container" id="modal-body">
                     <div class="float-child1">
                         <div id="parametersSelectContainer2" class="float-column green ">
                         </div>
@@ -344,6 +392,7 @@
                 (showCarsButton).insertBefore('#footer');
 
             }
+
             $(document).on('click', '#dynamicShowCarsButton', function () {
                 modalParameters();
             });
@@ -352,7 +401,7 @@
             $(document).on('change', '[id^="parameter2_"]', function () {
                 var modalList = $('#modalParametersList');
                 modalList.empty();
-           });
+            });
 
 
             function modalParameters() {
@@ -391,7 +440,7 @@
                                         </datalist>
                                     </div>
                                 </div>`;
-                                        container2.append(parameterDiv);
+                                        modalHeader.append(parameterDiv);
                                     } else {
                                         var datalist = $('#parameterOptions_' + parameter.key);
                                         if (datalist.length > 0) {
@@ -417,9 +466,13 @@
 
             function updateModalList() {
                 var modalList = $('#modalParametersList');
-                var modalHeader = $('#modal-header');
+                var modalChild2 = $('#parametersSelectContainer2');
+                var floatChild = $('.float-child1');
+
+
                 modalList.empty();
-                modalHeader.empty();
+                modalChild2.remove();
+                floatChild.remove();
 
                 selectedCarData.forEach(function (car) {
                     var ul = $('<ul class="border rounded-3 p-0 mb-5 col-12 ul-list-group-item_' + car.car_id + '" id="' + car.car_id + '"></ul>');
@@ -437,23 +490,26 @@
                             ul.append('<li class="list-group-item">' + car[key].value + '</li>');
                         }
                     });
-
-
                 });
 
 
+            }
 
-        }
 
             response1 = [];
             response2 = [];
             function listCarPartsCatalog(response) {
+                var modalBody = $('#modal-body')
+
+                var newFloatChild = $('<div class="float-child1"><div id="parametersSelectContainer2" class="float-column green"></div></div>');
+                modalBody.append(newFloatChild);
+
                 var modalList = $('#modalParametersList');
                 var container2 = $('#parametersSelectContainer2');
                 var modalHeader = $('#modal-header');
                 container2.empty();
                 modalList.empty();
-
+                modalHeader.empty();
                 response1 = response;
 
                 if (!$('#group-header').length) {
@@ -464,7 +520,7 @@
                     response.forEach(function (car) {
                         if (car.groupName) {
                             var groupItem = $('<ul class="list-group-item1 border p-2" id="group-' + car.part_id + '">' + car.groupName + '</ul>');
-                            container2.append(groupItem);
+                            modalList.append(groupItem);
 
                             var subGroupList = $('<ul class="sub-group-list"></ul>');
                             groupItem.append(subGroupList);
@@ -493,30 +549,36 @@
 
                 function parameters(car)
                 {
-                    var rightPane = $('#modalParametersList');
-                    rightPane.empty();
+                    var container2 = $('#parametersSelectContainer2');
+                    container2.empty();
 
                     console.log("Tıklanan Part ID:", car.part_id);
                     console.log("Part Informations:", car.PartInformations);
 
                     car.PartInformations.forEach(function (partInfo) {
                         var partItem = $('<div class="part-item mb-3">');
-                        partItem.append('<strong>Part Name:</strong> ' + partInfo.partName);
+                        partItem.append(partInfo.partName);
 
-                        partItem.append('<img src="' + partInfo.img + '" alt="' + partInfo.partName + '" class="custom-img1" id="' + partInfo.part_group_id + '" style="border: 1px solid black;  border-radius: 10px;"/>');
 
-                        rightPane.append(partItem);
+                      var partImage =   partInfo.img
+                        imagePath = partImage.split('/r\/250x250').join('');
+                        partItem.append('<img src="' + imagePath + '" alt="' + partInfo.partName + '" class="custom-img1" id="' + partInfo.part_group_id + '" style="border: 1px solid black;  border-radius: 10px;"/>');
+
+                        container2.append(partItem);
 
                     });
                     $(document).on('click',  'img.custom-img1', function(){
                         var partGroupId= $(this).attr('id');
                         console.log("part group ıd 31 " , partGroupId);
+                        var url =  window.location.origin + '/car/catalog/' + partGroupId + '/parameters';
+                        console.log(url);
                         $.ajax({
                             url: '/car/catalog/'+  partGroupId +'/parameters',
                             method: 'GET',
                             data: {  partGroupId },
                             traditional: true,
                             success: function (response) {
+
                                 console.log('Sunucudan gelen yanıt Part Group Id:', response);
                                 partsView(response);
                             },
@@ -565,24 +627,28 @@
                 });
             });
             function partsView(response) {
+                var modalHeader = $('#modal-header');
                 var modalList = $('#modalParametersList');
                 var container2 = $('#parametersSelectContainer2');
                 container2.empty();
                 modalList.empty();
+                modalHeader.empty();
 
                 var groupItem = $('<ul class="list-group-item22 text-align:left" id="group-' + response[0].brand_name + '" style="text-align:left;">' +
                     '<br><strong>' + response[0].brand_name + '</strong> ' +
                     '<strong>' + response[0].name + '</strong></br>' +
                     '</ul>');
-                container2.append(groupItem);
+                modalList.append(groupItem);
 
                 var imagePath = response[0].schema_img;
-                container2.append('<img src="' + imagePath + '" alt="' + response[0].brand_name + '" class="custom-img" id="'+ response[0].brand_name+ '" style="border: 1px solid black; border-radius: 10px; display: block; margin: 0 auto; "/>');
 
+                imagePath = imagePath.split('/r\/250x250').join('');
+                console.log("imagtepat" , imagePath);
+                modalList.append('<img src="' + imagePath + '" alt="' + response[0].brand_name + '" class="custom-img" id="'+ response[0].brand_name+ '" style="border: 1px solid black; border-radius: 10px; display: block; margin: 0 auto; "/>');
 
                 response.forEach(function (parts) {
                     var element = $('<div class="container mt-5"></div>');
-                    modalList.append(element);
+                    container2.append(element);
 
                     var card = $(`
             <div class="card shadow-sm" style="cursor: pointer;">
@@ -620,7 +686,7 @@
                         var isRedirected = false;
 
                         $(document).on('click', '[id^="shopping_"]', function() {
-                            if (isRedirected) return; // Eğer yönlendirilmişse, tekrar işlem yapma
+                            if (isRedirected) return;
 
                             var id = $(this).attr('id');
                             var parts = id.replace('shopping_', '').split('/');
@@ -631,8 +697,8 @@
                             console.log("part_group_id: ", group_id);
 
                             var button = $(this);
-                            if (button.prop('disabled')) return; // Buton devre dışıysa, işlem yapma
-                            button.prop('disabled', true); // Butonu devre dışı bırak
+                            if (button.prop('disabled')) return;
+                            button.prop('disabled', true);
 
                             $.ajax({
                                 url: '/cars/shoppingCart/' + part_id + '/' + group_id + '/parameters',
@@ -647,7 +713,7 @@
                                 },
                                 success: function(response) {
                                     if (!isRedirected) {
-                                        isRedirected = true; // Yönlendirmeyi bir kez yap
+                                        isRedirected = true;
                                         console.log('Response:', response.part_id);
                                         window.location.href = '/shoppingCart/partId/' + response.part_id + '/groupId/' + response.group_id + '/parameters';
                                     }
@@ -657,7 +723,7 @@
                                     alert('Bir hata oluştu!');
                                 },
                                 complete: function() {
-                                    button.prop('disabled', false); // İşlem tamamlandığında butonu tekrar aktif hale getir
+                                    button.prop('disabled', false);
                                 }
                             });
                         });
