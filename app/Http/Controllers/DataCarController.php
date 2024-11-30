@@ -51,8 +51,7 @@ class DataCarController extends Controller
 
     public function getParametersByModel(Request $request, $catalogName, $modelName)
     {
-        $catalog = CarCatalog::where('brand_name', $catalogName)->first();
-
+        $catalog = CarCatalog::where('catalog_id', $catalogName)->first();
         if ($catalog) {
             $parameters = $this->getParameters($modelName);
 
@@ -69,7 +68,6 @@ class DataCarController extends Controller
     public function getParameters($modelName)
     {
         $dataCar = Car::where('model_name', $modelName)->get();
-
         if ($dataCar->isNotEmpty()) {
             $parameters = [];
             foreach ($dataCar as $car) {
@@ -92,7 +90,6 @@ class DataCarController extends Controller
         $query = CarFilter::where('model_name', $modelName);
 
         $log2 = $query->get();
-
         foreach ($selectedValues as $selectedValue) {
             $filteredLog2 = collect();
 
@@ -145,47 +142,52 @@ class DataCarController extends Controller
 
         $carGroups = CarGroup::where('car_id', $car_id)->get();
         foreach ($carGroups as $carGroup) {
-            $subGroupNames = [];
+            $subGroupNames = $this->getSubGroups($carGroup->group_id, $car_id);
 
-            $carGroups31 = CarSubGroup::where('car_id', $carGroup->car_id)
-                ->where('parent_id', $carGroup->group_id)
-                ->get();
-            $Names = [];
-
-            foreach ($carGroups31 as $carSubGroup) {
-                if (!in_array($carSubGroup->name, array_column($subGroupNames, 'subGroupName'))) {
-                    $subGroupNames[] = [
-                        'subGroupName' => $carSubGroup->name,
-                    ];
-                }
-
-                $carSchemas = CarSchemas::where('group_id', $carSubGroup->group_id)
-                    ->whereNotNull('part_name')
-                    ->whereNotNull('part_group_id')
-                    ->get();
-
-                foreach ($carSchemas as $carSchema) {
-                    $Names[] = [
-                        'partName' => $carSchema->part_name,
-                        'part_group_id' => $carSchema->part_group_id,
-                        'img' => $carSchema->img,
-                    ];
-                }
-            }
-
-
-                $result[] = [
-                    'car_id' => $car_id,
-                    'part_id' => $carGroup->group_id,
-                    'groupName' => $carGroup->name,
-                    'subGroupNames' => $subGroupNames,
-                    'PartInformations' => $Names,
-                ];
-
+            $result[] = [
+                'car_id' => $car_id,
+                'part_id' => $carGroup->group_id,
+                'groupName' => $carGroup->name,
+                'subGroupNames' => $subGroupNames,
+            ];
         }
 
         return response()->json($result);
     }
+
+    private function getSubGroups($parent_id, $car_id)
+    {
+        $subGroups = CarSubGroup::where('car_id', $car_id)
+            ->where('parent_id', $parent_id)
+            ->get();
+        $subGroupNames = [];
+        foreach ($subGroups as $subGroup) {
+            $subGroupDetails = [
+                'subGroupName' => $subGroup->name,
+                'group_id' => $subGroup->group_id,
+                'parent_id' => $subGroup->parent_id,
+                'children' => $this->getSubGroups($subGroup->group_id, $car_id),
+            ];
+
+
+            $carSchemas = CarSchemas::where('branch_id', $subGroup->group_id)->get();
+            $partInformations = [];
+            foreach ($carSchemas as $carSchema) {
+                $partInformations[] = [
+                    'partName' => $carSchema->part_name,
+                    'part_group_id' => $carSchema->part_group_id,
+                    'img' => $carSchema->img,
+                ];
+            }
+
+            $subGroupDetails['partInformations'] = $partInformations;
+
+            $subGroupNames[] = $subGroupDetails;
+        }
+
+        return $subGroupNames;
+    }
+
 
 
 
