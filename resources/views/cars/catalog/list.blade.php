@@ -502,9 +502,10 @@
             function listCarPartsCatalog(response) {
                 var modalBody = $('#modal-body');
 
-                var newFloatChild = $('<div class="float-child1"><div id="parametersSelectContainer2" class="float-column green"></div></div>');
-                modalBody.append(newFloatChild);
-
+                if ($('#parametersSelectContainer2').length === 0) {
+                    var newFloatChild = $('<div class="float-child1"><div id="parametersSelectContainer2" class="float-column green"></div></div>');
+                    modalBody.append(newFloatChild);
+                }
                 var modalList = $('#modalParametersList');
                 var container2 = $('#parametersSelectContainer2');
                 var modalHeader = $('#modal-header');
@@ -528,7 +529,6 @@
 
                         groupItem.on('click', function (event) {
                             event.preventDefault();
-                            parameters(car);
 
                             if (!groupItem.data('subGroupsAdded')) {
                                 if (car.subGroupNames && car.subGroupNames.length > 0) {
@@ -536,61 +536,65 @@
                                         var subnameItem = $('<li class="list-group-item31 subname-item p-2" id="subgroup-' + subname.subGroupName + '">' + subname.subGroupName + '</li>');
                                         subGroupList.append(subnameItem);
 
-                                        // Adding children and partInformations
                                         if (subname.children && subname.children.length > 0) {
                                             var childList = $('<ul class="child-list"></ul>');
                                             subname.children.forEach(function (child) {
                                                 var childItem = $('<li class="child-item p-2">' + child.subGroupName + '</li>');
                                                 childList.append(childItem);
+
+                                                if (child.children && child.children.length > 0) {
+                                                    var childList2 = $('<ul class="child-list3"></ul>');
+                                                    child.children.forEach(function (partInfo) {
+                                                        var childItem2 = $('<li class="child-item p-3">' + partInfo.subGroupName+ '</li>');
+                                                        childList2.append(childItem2);
+                                                    });
+
+                                                    childItem.append(childList2);
+                                                }
                                             });
+
                                             subnameItem.append(childList);
                                         }
 
-                                        // Adding partInformations
-                                        if (subname.partInformations && subname.partInformations.length > 0) {
-                                            subname.partInformations.forEach(function (partInfo) {
-                                                var partItem = $('<div class="part-item mb-3">');
-                                                partItem.append(partInfo.partName);
+                                       if(subname.partInformations &&  subname.partInformations.length > 0 ){
+                                           subname.partInformations.forEach(function (partInforma) {
+                                                  var partItem2 = $('<div class="part-item mb-3"></div>');
+                                                  var partName2 = $('<span>' + partInforma.partName + '</span>')
+                                                   partItem2.append(partName2);
 
-                                                var partImage = partInfo.img;
+                                                   var partImage2 = partInforma.img;
+                                                   var imagePath2 = partImage2.split('/r\/250x250').join('');
+                                                   partItem2.append('<img src="' + imagePath2 + '" alt="' + partInforma.partName + '" class="custom-img1" id="' + partInforma.part_group_id + '" style="border: 1px solid black; border-radius: 10px;" />');
+                                                   container2.append(partItem2);
+                                               });
+
+                                       }
+
+                                        if (subname.children && subname.children.length > 0) {
+                                            subname.children.forEach(function (partInfo) {
+                                                partInfo.partInformations.forEach(function (partInfor){
+
+                                                var partItem = $('<div class="part-item mb-3"></div>');
+                                                var partName = $('<span>'  + partInfor.partName + '</span>')
+                                                partItem.append(partName);
+                                                var partImage = partInfor.img;
                                                 var imagePath = partImage.split('/r\/250x250').join('');
-                                                partItem.append('<img src="' + imagePath + '" alt="' + partInfo.partName + '" class="custom-img1" id="' + partInfo.part_group_id + '" style="border: 1px solid black; border-radius: 10px;" />');
+                                                partItem.append('<img src="' + imagePath + '" alt="' + partInfor.partName + '" class="custom-img1" id="' + partInfor.part_group_id + '" style="border: 1px solid black; border-radius: 10px;" />');
 
                                                 container2.append(partItem);
                                             });
+                                            });
                                         }
                                     });
-                                }
+                                    }
                                 groupItem.data('subGroupsAdded', true);
                             }
 
                             subGroupList.toggle();
-                        });
+                        })
                     }
                 });
 
-                function parameters(car) {
-                    var container2 = $('#parametersSelectContainer2');
-                    container2.empty();
-
-                    console.log("Tıklanan Part ID:", car.part_id);
-                    console.log("Part Informations:", car.PartInformations);
-
-                    // Iterating over subGroupNames to add partInformations
-                    car.subGroupNames.forEach(function (subGroup) {
-                        if (subGroup.partInformations && subGroup.partInformations.length > 0) {
-                            subGroup.partInformations.forEach(function (partInfo) {
-                                var partItem = $('<div class="part-item mb-3">');
-                                partItem.append(partInfo.partName);
-
-                                var partImage = partInfo.img;
-                                var imagePath = partImage.split('/r\/250x250').join('');
-                                partItem.append('<img src="' + imagePath + '" alt="' + partInfo.partName + '" class="custom-img1" id="' + partInfo.part_group_id + '" style="border: 1px solid black; border-radius: 10px;" />');
-
-                                container2.append(partItem);
-                            });
-                        }
-                    });
 
                     $(document).on('click', 'img.custom-img1', function () {
                         var partGroupId = $(this).attr('id');
@@ -613,7 +617,7 @@
                         });
                     });
                 }
-            }
+
 
             $(document).on('click', '.list-group-item', function () {
                 var car_id = $(this).closest('ul').attr('id');
@@ -675,8 +679,10 @@
         <div class="card-footer bg-light border-top">
             <ul class="sub-group-list">
                 <li class="p-0 col-12 ul-list-group-item_${parts.part_id}" id="${parts.part_id}" style="display: flex; align-items: center; justify-content: space-between;">
-                    <span>${parts.brand_name}&nbsp;&nbsp;&nbsp;&nbsp;${parts.part_id}</span>
-                    <button class="btn btn-link p-0 ms-3" id="shopping_${parts.part_id}/${parts.group_id}" style="font-size: 20px; cursor: pointer; display: flex; align-items: center;">
+<span class="d-flex flex-column">
+                <span>${parts.brand_name}</span>
+                <span>${parts.part_id}</span>
+            </span>                    <button class="btn btn-link p-0 ms-3" id="shopping_${parts.part_id}/${parts.group_id}" style="font-size: 20px; cursor: pointer; display: flex; align-items: center;">
                         <span class="material-symbols-outlined" style="line-height: 1;">
                             shopping_cart
                         </span>
