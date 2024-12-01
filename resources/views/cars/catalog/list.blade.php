@@ -4,6 +4,24 @@
 
 @section('css')
     <style>
+        .part-item {
+            display: block; /* Elemanları dikey hizalamak için */
+            margin-bottom: 20px; /* Alt boşluk */
+            width: 100%; /* Tam genişlik için */
+            text-align: center; /* İsim ve resimleri ortalamak için */
+        }
+
+        .part-name {
+            font-weight: bold;
+            margin-bottom: 10px; /* İsim ile resim arasında boşluk */
+        }
+
+        .custom-img1 {
+            display: block;
+            margin: 0 auto; /* Görüntüyü ortalamak için */
+        }
+
+
         .d-flex {
             display: block !important;
         }
@@ -12,6 +30,7 @@
             display: inline-block;
             width: 100%;
         }
+
 
         .select-like {
             appearance: none;
@@ -75,15 +94,11 @@
 
         .custom-img {
             max-width: 100%;
-            height: 500px;
+            height: 400px;
             object-fit: contain;
         }
 
-        .custom-img1 {
-            max-width: 100%;
-            height: 500px;
-            object-fit: contain;
-        }
+
         .modal-body {
             max-height: 70vh;
             overflow-y: auto;
@@ -117,6 +132,46 @@
             width: 100%;
         }
 
+
+
+        .list-group-item1 {
+            margin-bottom: 10px;
+            padding: 10px;
+            border: 1px solid #ccc;
+            background-color: #f9f9f9;
+            font-weight: bold;
+        }
+
+        .sub-group-list {
+            margin-left: 20px;
+            padding-left: 0;
+        }
+
+        .child-list {
+            margin-left: 30px;
+            padding-left: 0;
+        }
+
+        .child-list3 {
+            margin-left: 40px;
+            padding-left: 0;
+
+        }
+
+
+        .sub-group-list li,
+        .child-list li,
+        .child-list3 li {
+            margin: 3px 0;
+            padding: 5px 15px;
+        }
+
+        .list-group-item1,
+        .sub-group-list li,
+        .child-list li,
+        .child-list3 li {
+            padding-left: 20px;
+        }
 
 
 
@@ -506,6 +561,7 @@
                     var newFloatChild = $('<div class="float-child1"><div id="parametersSelectContainer2" class="float-column green"></div></div>');
                     modalBody.append(newFloatChild);
                 }
+
                 var modalList = $('#modalParametersList');
                 var container2 = $('#parametersSelectContainer2');
                 var modalHeader = $('#modal-header');
@@ -515,7 +571,7 @@
                 response1 = response;
 
                 if (!$('#group-header').length) {
-                    var groupItem1 = $('<ul class="list-group-item1 pb-0 ml-0" id="group-header"><strong> Categories </strong></ul>');
+                    var groupItem1 = $('<ul class="list-group-item5 pb-0 ml-0" id="group-header"><strong> Categories </strong></ul>');
                     modalHeader.append(groupItem1);
                 }
 
@@ -525,98 +581,200 @@
                         modalList.append(groupItem);
 
                         var subGroupList = $('<ul class="sub-group-list"></ul>');
-                        groupItem.append(subGroupList);
+                        groupItem.after(subGroupList);
 
                         groupItem.on('click', function (event) {
                             event.preventDefault();
 
+                            car.subGroupNames.forEach(function (subname) {
+                                showpartsChild(subname);
+                                showpartsSubname(subname);
+
+                                if (subname.children && subname.children.length > 0) {
+                                    subname.children.forEach(function (child) {
+                                        showpartsChild(child);
+                                        showpartsSubname(child);
+                                    });
+                                }
+                            });
+
+
                             if (!groupItem.data('subGroupsAdded')) {
                                 if (car.subGroupNames && car.subGroupNames.length > 0) {
                                     car.subGroupNames.forEach(function (subname) {
-                                        var subnameItem = $('<li class="list-group-item31 subname-item p-2" id="subgroup-' + subname.subGroupName + '">' + subname.subGroupName + '</li>');
+                                        var subnameItem = $('<li class="list-group-item-sub subname-item pl-2 border" id="subgroup-' + subname.subGroupName + '">' + subname.subGroupName + '</li>');
                                         subGroupList.append(subnameItem);
 
-                                        if (subname.children && subname.children.length > 0) {
-                                            var childList = $('<ul class="child-list"></ul>');
-                                            subname.children.forEach(function (child) {
-                                                var childItem = $('<li class="child-item p-2">' + child.subGroupName + '</li>');
-                                                childList.append(childItem);
+                                        subnameItem.on('click', function (event) {
+                                            event.preventDefault();
 
-                                                if (child.children && child.children.length > 0) {
-                                                    var childList2 = $('<ul class="child-list3"></ul>');
-                                                    child.children.forEach(function (partInfo) {
-                                                        var childItem2 = $('<li class="child-item p-3">' + partInfo.subGroupName+ '</li>');
-                                                        childList2.append(childItem2);
+                                            container2.empty();
+                                            showpartsChild(subname);
+                                            showpartsSubname(subname);
+
+                                            if (!subnameItem.data('clickAdded')) {
+                                                if (subname.children && subname.children.length > 0) {
+                                                    var childList = $('<ul class="child-list" id="child-list-' + subname.group_id + '"></ul>');
+                                                    subname.children.forEach(function (child) {
+                                                        var childItem = $('<li class="child-item pl-3 border" id="' + child.group_id + '">' + child.subGroupName + '</li>');
+                                                        childList.append(childItem);
                                                     });
+                                                    subnameItem.after(childList);
+                                                    var foundChild = null;
+                                                    $(document).on('click', '.child-item', function (event) {
+                                                        event.preventDefault();
+                                                        var childId = $(this).attr('id');
+                                                        console.log('Tıklanan Child ID: ', childId);
 
-                                                    childItem.append(childList2);
+
+                                                        response1.forEach(function (car) {
+                                                            car.subGroupNames.forEach(function (subname) {
+                                                                subname.children.forEach(function (child) {
+                                                                    if (child.group_id === childId) {
+                                                                        foundChild = child;
+                                                                    }
+                                                                });
+                                                            });
+                                                        });
+
+                                                        if (!foundChild) {
+                                                            console.error("Çocuk öğesi bulunamadı: " + childId);
+                                                            return;
+                                                        }
+
+                                                        container2.empty();
+                                                        showpartsChild(foundChild);
+                                                        showpartsSubname(foundChild);
+
+                                                        if (foundChild.children && foundChild.children.length > 0) {
+                                                            var childList2 = $('<ul class="child-list2" id="child-list2-' + foundChild.group_id + '"></ul>');
+                                                            foundChild.children.forEach(function (partInfo) {
+                                                                var childItem2 = $('<li class="child-item2 pl-4 border" id="' + partInfo.group_id + '">' + partInfo.subGroupName + '</li>');
+                                                                childList2.append(childItem2);
+                                                            });
+
+
+                                                            $('#' + childId).after(childList2);
+                                                        }
+
+
+                                                    });
+                                                    $(document).on('click', '.child-item2', function (event) {
+                                                        event.preventDefault();
+                                                        container2.empty();
+
+                                                        var childId = $(this).attr('id');
+                                                        console.log("asdfdsa", childId);
+
+                                                        response1.forEach(function (car) {
+                                                            car.subGroupNames.forEach(function (subname) {
+                                                                subname.children.forEach(function (child2) {
+                                                                    child2.children.forEach(function (child) {
+                                                                        if (child.group_id === childId) {
+                                                                            foundedChild2 = child;
+                                                                            showpartsSubname(child)
+
+
+                                                                        }
+                                                                    });
+                                                                });
+                                                            });
+
+                                                        });
+                                                    })
+
                                                 }
-                                            });
-
-                                            subnameItem.append(childList);
-                                        }
-
-                                       if(subname.partInformations &&  subname.partInformations.length > 0 ){
-                                           subname.partInformations.forEach(function (partInforma) {
-                                                  var partItem2 = $('<div class="part-item mb-3"></div>');
-                                                  var partName2 = $('<span>' + partInforma.partName + '</span>')
-                                                   partItem2.append(partName2);
-
-                                                   var partImage2 = partInforma.img;
-                                                   var imagePath2 = partImage2.split('/r\/250x250').join('');
-                                                   partItem2.append('<img src="' + imagePath2 + '" alt="' + partInforma.partName + '" class="custom-img1" id="' + partInforma.part_group_id + '" style="border: 1px solid black; border-radius: 10px;" />');
-                                                   container2.append(partItem2);
-                                               });
-
-                                       }
-
-                                        if (subname.children && subname.children.length > 0) {
-                                            subname.children.forEach(function (partInfo) {
-                                                partInfo.partInformations.forEach(function (partInfor){
-
-                                                var partItem = $('<div class="part-item mb-3"></div>');
-                                                var partName = $('<span>'  + partInfor.partName + '</span>')
-                                                partItem.append(partName);
-                                                var partImage = partInfor.img;
-                                                var imagePath = partImage.split('/r\/250x250').join('');
-                                                partItem.append('<img src="' + imagePath + '" alt="' + partInfor.partName + '" class="custom-img1" id="' + partInfor.part_group_id + '" style="border: 1px solid black; border-radius: 10px;" />');
-
-                                                container2.append(partItem);
-                                            });
-                                            });
-                                        }
+                                                subnameItem.data('clickAdded', true);
+                                            }
+                                        });
                                     });
-                                    }
+                                }
                                 groupItem.data('subGroupsAdded', true);
                             }
 
                             subGroupList.toggle();
-                        })
+                        });
                     }
                 });
 
+                function showpartsSubname(subname) {
+                    if (subname.partInformations && subname.partInformations.length > 0) {
+                        subname.partInformations.forEach(function (partInforma) {
+                            var partItem2 = $('<div class="part-item mb-3"></div>');
+                            var partName2 = $('<div class="part-name text-center">' + partInforma.partName + '</div>');
+                            var partImage2 = partInforma.img;
+                            var imagePath2 = partImage2.split('/r\/250x250').join('');
 
-                    $(document).on('click', 'img.custom-img1', function () {
-                        var partGroupId = $(this).attr('id');
-                        console.log("part group ıd 31 ", partGroupId);
-                        var url = window.location.origin + '/car/catalog/' + partGroupId + '/parameters';
-                        console.log(url);
-                        $.ajax({
-                            url: '/car/catalog/' + partGroupId + '/parameters',
-                            method: 'GET',
-                            data: { partGroupId },
-                            traditional: true,
-                            success: function (response) {
-                                console.log('Sunucudan gelen yanıt Part Group Id:', response);
-                                partsView(response);
-                            },
-                            error: function (xhr, status, error) {
-                                console.error('AJAX hatası:', status, error);
-                                alert('Bir hata oluştu!');
-                            }
+                            var imageElement = $('<img>', {
+                                src: imagePath2,
+                                alt: partInforma.partName,
+                                class: 'custom-img1',
+                                id: partInforma.part_group_id,
+                                style: 'border: 1px solid black; border-radius: 10px; width: 300px;  margin: 10px auto; display: block;'
+                            });
+
+                            partItem2.append(partName2);
+                            partItem2.append(imageElement);
+                            container2.append(partItem2);
                         });
-                    });
+                    }
                 }
+
+                function showpartsChild(subname) {
+                    if (subname.children && subname.children.length > 0) {
+                        subname.children.forEach(function (partInfo) {
+                            partInfo.partInformations.forEach(function (partInfor) {
+                                var partItem = $('<div class="part-item mb-3"></div>');
+                                var partName = $('<div class="part-name text-center">' + partInfor.partName + '</div>');
+                                var partImage = partInfor.img;
+                                var imagePath = partImage.split('/r\/250x250').join('');
+
+                                var imageElement = $('<img>', {
+                                    src: imagePath,
+                                    alt: partInfor.partName,
+                                    class: 'custom-img1',
+                                    id: partInfor.part_group_id,
+                                    style: 'border: 1px solid black; border-radius: 10px; width: 300px; margin: 10px auto; display: block;'
+                                });
+
+                                partItem.append(partName);
+                                partItem.append(imageElement);
+                                container2.append(partItem);
+                            });
+                        });
+                    }
+                }
+
+            }
+
+
+
+
+
+
+
+            $(document).on('click', 'img.custom-img1', function () {
+                var partGroupId = $(this).attr('id');
+                var url = window.location.origin + '/car/catalog/' + partGroupId + '/parameters';
+                console.log(url);
+                $.ajax({
+                    url: '/car/catalog/' + partGroupId + '/parameters',
+                    method: 'GET',
+                    data: {partGroupId},
+                    traditional: true,
+                    success: function (response) {
+                        console.log('Sunucudan gelen yanıt Part Group Id:', response);
+                        partsView(response);
+                    },
+                    error: function (xhr, status, error) {
+                        console.error('AJAX hatası:', status, error);
+                        alert('Bir hata oluştu!');
+                    }
+                });
+            });
+
+
+
 
 
             $(document).on('click', '.list-group-item', function () {
