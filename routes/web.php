@@ -1,10 +1,17 @@
 <?php
 
+use App\Http\Controllers\AccidentController;
 use App\Http\Controllers\ChangePasswordController;
 use App\Http\Controllers\DataCarController;
+use App\Http\Controllers\ExpertiseController;
 use App\Http\Controllers\HomeController;
+use App\Http\Controllers\CarOwnerController;
+
 use App\Http\Controllers\InfoUserController;
+use App\Http\Controllers\InsurerController;
+use App\Http\Controllers\LawyerController;
 use App\Http\Controllers\RegisterController;
+use App\Http\Controllers\RepairmanController;
 use App\Http\Controllers\ResetController;
 use App\Http\Controllers\SessionsController;
 use App\Http\Controllers\ShoppingCartController;
@@ -67,7 +74,18 @@ Route::group(['middleware' => 'auth'], function () {
     Route::get('/shopping-cart/increase/{user_id}/{group_id}/{part_id}', [ShoppingCartController::class, 'increaseQuantity'])->name('shoppingCart.increaseQuantity');
     Route::match(['get', 'post'] ,'/cart/decrease-quantity/{userId}/{groupId}/{partId}', [ShoppingCartController::class, 'decreaseQuantity']);
 
+    Route::get('/accident/list' , [AccidentController::class, 'list'])->name('accident.list');
 
+    Route::post('/accident/store', [AccidentController::class, 'store'])->name('accidents.store');
+    Route::post('/accident/{id}/update', [AccidentController::class, 'update'])->name('accidents.update');
+    Route::get('/accident/{id}/edit', [AccidentController::class, 'edit'])->name('accidents.edit');
+    Route::get('/accident/create' , [AccidentController::class, 'create'])->name('accidents.create');
+
+    Route::get('/insurer/list' , [InsurerController::class, 'list'])->name('insurer.list');
+    Route::get('/lawyer/list' , [LawyerController::class, 'list'])->name('lawyer.list');
+    Route::get('/carOwners/list' , [CarOwnerController::class, 'list'])->name('carOwners.list');
+    Route::get('/repairmans/list' ,  [RepairmanController::class, 'list'])->name('repairmans.list');
+    Route::get('/experts/list' ,  [ExpertiseController::class, 'list'])->name('experts.list');
 
     Route::get('static-sign-up', function () {
 		return view('static-sign-up');

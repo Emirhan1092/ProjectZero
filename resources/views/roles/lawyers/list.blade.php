@@ -1,40 +1,35 @@
 @extends('layouts.user_type.auth')
 
-@section("title", "User List")
+@section("title", "Lawyers List")
 
 @section('css')
-    <style>
-        <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0&icon_names=edit" />
-        <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
 
-
-    </style>
 
     @endsection
 @section("content")
     <div class="p-4 bg-secondary rounded-1">
-        <form action="{{route('users.list')}}" method="GET" id="formFilter">
+        <form action="{{route('lawyer.list')}}" method="GET" id="formFilter">
             <div class="row">
                 <div class="col-md-6">
                     <div class="form-group">
-                        <input type="text" name="name" placeholder="Name" class="form-control form-control-alternative" value="{{ request()->get('name') }}">
+                        <input type="number" name="user_id" placeholder="User ID" class="form-control form-control-alternative" value="{{ request()->get('user_id') }}">
                     </div>
                 </div>
                 <div class="col-md-6">
                     <div class="form-group">
-                        <input type="email" name="email" class="form-control form-control-alternative" id="exampleFormControlInput1" placeholder="Email" value="{{ request()->get('email') }}">
+                        <input type="text" name="name" class="form-control form-control-alternative" id="exampleFormControlInput1" placeholder="Name" value="{{ request()->get('name') }}">
                     </div>
                 </div>
             </div>
             <div class="row">
                 <div class="col-md-6">
                     <div class="form-group">
-                        <input type="text" name="role" placeholder="Role" class="form-control form-control-alternative" value="{{ request()->get('role') }}">
+                        <input type="email" name="email" placeholder="Email" class="form-control form-control-alternative" value="{{ request()->get('email') }}">
                     </div>
                 </div>
                 <div class="col-md-6">
                     <div class="form-group">
-                        <input type="text" name="role_id" class="form-control form-control-alternative" id="exampleFormControlInput2" placeholder="Role ID" value="{{ request()->get('role_id') }}">
+                        <input type="number" name="phone_number" class="form-control form-control-alternative" id="exampleFormControlInput2" placeholder="Phone Number" value="{{ request()->get('phone_number') }}">
                     </div>
                 </div>
             </div>
@@ -42,13 +37,27 @@
                 <div class="col-md-6">
                     <div class="form-group">
                         <div class="input-group input-group-alternative mb-4">
-                            <input class="form-control form-control-alternative" name="phone" placeholder="Phone Number" type="text" value="{{ request()->get('phone_number') }}">
+                            <input class="form-control form-control-alternative" name="specialization" placeholder="Specialization" type="text" value="{{ request()->get('specialization') }}">
                         </div>
                     </div>
                 </div>
                 <div class="col-md-6">
                     <div class="form-group has-success">
-                        <input type="text" name="id" placeholder="ID" class="form-control form-control-alternative" value="{{ request()->get('id') }}">
+                        <input type="text" name="address" placeholder="Address" class="form-control form-control-alternative" value="{{ request()->get('address') }}">
+                    </div>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-md-6">
+                    <div class="form-group">
+                        <div class="input-group input-group-alternative mb-4">
+                            <input class="form-control form-control-alternative" name="license_number" placeholder="License Number" type="text" value="{{ request()->get('license_number') }}">
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="form-group has-success">
+                        <input type="date" name="license_expiry" placeholder="License Expiry" class="form-control form-control-alternative" value="{{ request()->get('license_expiry') }}">
                     </div>
                 </div>
             </div>
@@ -70,42 +79,45 @@
                 <tr>
                     <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 text-end">Image</th>
                     <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 text-end">ID</th>
-                    <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 text-end">Role ID</th>
-                    <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 text-end">Role</th>
-                    <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 text-end">Name</th>
+                    <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 text-end">User ID</th>
+                    <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 text-end">Insurer Name</th>
+                    <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 text-end">Insurer Company</th>
                     <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 text-end">Email</th>
                     <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 text-end">Phone Number</th>
-                    <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 text-end">Actions</th>
+                    <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 text-end">Address</th>
                 </tr>
                 </thead>
                 <tbody>
-                @foreach($users as $user)
+                @foreach($lawyers as $lawyer)
                     <tr>
                         <td class="text-end">
-                            <img src="{{ asset('assets/img/team-4.jpg') }}" class="avatar avatar-sm me-3" alt="User Image">
+                            <img src="{{isset($lawyer)  ? asset('assets/img/team-4.jpg') :$lawyer->image }}" class="avatar avatar-sm me-3" alt="User Image">
                         </td>
                         <td class="text-end">
-                            <p class="text-xs font-weight-bold mb-0 m-3 ">{{ $user->id }}</p>
+                            <p class="text-xs font-weight-bold mb-0 m-3 ">{{ $lawyer->id }}</p>
                         </td>
                         <td class="text-end">
-                            <p class="text-xs font-weight-bold mb-0 m-3 ">{{ $user->role_id }}</p>
+                            <p class="text-xs font-weight-bold mb-0 m-3 ">{{ $lawyer->user_id }}</p>
                         </td>
                         <td class="text-end">
-                            <p class="text-xs font-weight-bold mb-0 m-3 ">{{ $user->role }}</p>
+                            <p class="text-xs font-weight-bold mb-0 m-3 ">{{ $lawyer->name }}</p>
                         </td>
                         <td class="text-end">
-                            <p class="text-xs font-weight-bold mb-0 m-3" >{{ $user->name }}</p>
+                            <p class="text-xs font-weight-bold mb-0 m-3" >{{ $lawyer->specialization }}</p>
                         </td>
                         <td class="text-end">
-                            <p class="text-xs font-weight-bold mb-0 m-3">{{ $user->email }}</p>
+                            <p class="text-xs font-weight-bold mb-0 m-3">{{ $lawyer->email }}</p>
                         </td>
                         <td class="text-end">
-                            <span class="text-secondary text-xs font-weight-normal m-3">{{ $user->phone_number }}</span>
+                            <span class="text-secondary text-xs font-weight-normal m-3">{{ $lawyer->phone_number }}</span>
                         </td>
                         <td class="text-end">
-                            <a href="{{route('users.edit' , [$user->id ])}}" class="text-secondary font-weight-normal text-xs m-3" data-toggle="tooltip" data-original-title="Edit user">
-                                <i class="fa-solid fa-pen-to-square" style="color:black;"></i>
-                            </a>
+                            <span class="text-secondary text-xs font-weight-normal m-3">{{ $lawyer->address}}</span>
+                        </td>
+                        <td class="text-end">
+                            <span class="text-secondary text-xs font-weight-normal m-3">{{ $lawyer->license_number}}</span>
+                        </td> <td class="text-end">
+                            <span class="text-secondary text-xs font-weight-normal m-3">{{ $lawyer->license_expiry}}</span>
                         </td>
                     </tr>
                 @endforeach
@@ -116,7 +128,7 @@
     </div>
 
     <div class="d-flex justify-content-center">
-        {{ $users->links() }}
+        {{ $lawyers->links() }}
     </div>
 @endsection
 

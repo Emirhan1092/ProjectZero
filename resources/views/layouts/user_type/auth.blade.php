@@ -30,6 +30,12 @@
             @yield('content')
         </div>
 
+    @elseif (\Request::is('dashboard'))
+        @include('layouts.navbars.auth.sidebar')
+        <div class="main-content position-relative bg-gray-100 max-height-vh-100 h-100">
+            @include('layouts.navbars.auth.nav')
+            @yield('content')
+        </div>
 
     @else
         @include('layouts.navbars.auth.sidebar')

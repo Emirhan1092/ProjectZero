@@ -97,6 +97,11 @@
             height: 400px;
             object-fit: contain;
         }
+        .custom-img3 {
+            max-width: 100%;
+            height: 550px;
+            object-fit: contain;
+        }
 
 
         .modal-body {
@@ -833,7 +838,7 @@
 
                 imagePath = imagePath.split('/r\/250x250').join('');
                 console.log("imagtepat" , imagePath);
-                modalList.append('<img src="' + imagePath + '" alt="' + response[0].brand_name + '" class="custom-img" id="'+ response[0].brand_name+ '" style="border: 1px solid black; border-radius: 10px; display: block; margin: 0 auto; "/>');
+                modalList.append('<img src="' + imagePath + '" alt="' + response[0].brand_name + '" class="custom-img3" id="'+ response[0].brand_name+ '" style="border: 1px solid black; border-radius: 10px; display: block; margin: 0 auto; "/>');
 
                 response.forEach(function (parts) {
                     var element = $('<div class="container mt-5"></div>');
@@ -897,7 +902,7 @@
                                 data: {
                                     part_id: part_id,
                                     group_id: group_id,
-                                    _token: '{{ csrf_token() }}'
+                                    _token: '{{ csrf_token()}}'
                                 },
                                 headers: {
                                     'X-CSRF-TOKEN': '{{ csrf_token() }}'
