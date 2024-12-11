@@ -24,14 +24,14 @@ class AccidentController extends Controller
             })->paginate(10);
 
 
-        return view('roles.accidents.list', compact('accidents'));
+        return view('layouts.content.list.accidents', compact('accidents'));
     }
 
     public function create()
     {
         $accidents = Accident::all();
 
-        return view('roles.accidents.create-update', compact('accidents'));
+        return view('layouts.content.create-update.accidents', compact('accidents'));
     }
 
     public function edit(Request $request, int $userID)
@@ -43,7 +43,7 @@ class AccidentController extends Controller
         }
 
 
-        return view('roles.accidents.create-update', compact('accident')
+        return view('layouts.content.create-update.accidents', compact('accident')
 
         );
     }

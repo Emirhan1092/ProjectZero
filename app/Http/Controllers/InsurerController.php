@@ -24,7 +24,7 @@ class InsurerController extends Controller
             })->paginate(10);
 
 
-        return view('roles.insurers.list', compact('insurers'));
+        return view('layouts.content.list.insurers', compact('insurers'));
     }
 
 

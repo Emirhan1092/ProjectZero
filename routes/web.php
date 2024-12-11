@@ -16,6 +16,7 @@ use App\Http\Controllers\ResetController;
 use App\Http\Controllers\SessionsController;
 use App\Http\Controllers\ShoppingCartController;
 use App\Http\Controllers\UserController;
+use App\Http\Controllers\VehicleController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Password;
 use Illuminate\Support\Facades\Route;
@@ -67,7 +68,7 @@ Route::group(['middleware' => 'auth'], function () {
     Route::get('/cars/catalog', [DataCarController::class, 'list'])->name('catalog.list');
     Route::get('/cars/car_id/{carId}/parameters', [DataCarController::class, 'carGroupList']);
     Route::get('car/catalog/{part_group_id}/parameters' , [DataCarController::class, 'getParametersByPartGroup']);
-    Route::match(['get', 'post'],'cars/shoppingCart/{partId}/{group_id}/parameters', [DataCarController::class, 'getShoppingCart']);
+    Route::post('cars/shoppingCart/{partId}/{group_id}/parameters', [DataCarController::class, 'getShoppingCart']);
     Route::get('/shoppingCart/partId/{partId}/groupId/{groupId}/parameters', [ShoppingCartController::class, 'getShoppingCartPartGroup']);
     Route::get('/shoppingCart' , [ShoppingCartController::class, 'getShoppingCartPart'])->name('shopping.cart');
     Route::get('/shoppingCart/List' , [ShoppingCartController::class, 'list'])->name('shopping.cart.list');
@@ -81,11 +82,24 @@ Route::group(['middleware' => 'auth'], function () {
     Route::get('/accident/{id}/edit', [AccidentController::class, 'edit'])->name('accidents.edit');
     Route::get('/accident/create' , [AccidentController::class, 'create'])->name('accidents.create');
 
+
+    Route::get('/vehicle/list' , [VehicleController::class, 'list'])->name('vehicles.list');
+
+    Route::post('/vehicle/store', [VehicleController::class, 'store'])->name('vehicles.store');
+    Route::post('/vehicle/{id}/update', [VehicleController::class, 'update'])->name('vehicles.update');
+    Route::get('/vehicle/{id}/edit', [VehicleController::class, 'edit'])->name('vehicles.edit');
+    Route::get('/vehicle/create' , [VehicleController::class, 'create'])->name('vehicles.create');
+
     Route::get('/insurer/list' , [InsurerController::class, 'list'])->name('insurer.list');
     Route::get('/lawyer/list' , [LawyerController::class, 'list'])->name('lawyer.list');
     Route::get('/carOwners/list' , [CarOwnerController::class, 'list'])->name('carOwners.list');
     Route::get('/repairmans/list' ,  [RepairmanController::class, 'list'])->name('repairmans.list');
     Route::get('/experts/list' ,  [ExpertiseController::class, 'list'])->name('experts.list');
+
+    Route::get('/addAndSelectUser' , [DataCarController::class , 'addAndSelectUser'])->name('addAndSelectUser');
+
+    Route::get('/carIdSelected/{userId}/parameters', [DataCarController::class, 'carOption'])->name('carOption');
+
 
     Route::get('static-sign-up', function () {
 		return view('static-sign-up');

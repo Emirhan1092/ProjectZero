@@ -13,7 +13,7 @@
                   <h3 class="font-weight-bolder text-info text-gradient">Welcome back</h3>
                   <p class="mb-0">Create a new acount<br></p>
                   <p class="mb-0">OR Sign in with these credentials:</p>
-                  <p class="mb-0">Email <b>admin@softui.com</b></p>
+                  <p class="mb-0">Email <b></b></p>
                   <p class="mb-0">Password <b>secret</b></p>
                 </div>
                 <div class="card-body">
@@ -43,7 +43,7 @@
                   </form>
                 </div>
                 <div class="card-footer text-center pt-0 px-lg-2 px-1">
-                <small class="text-muted">Forgot you password? Reset you password 
+                <small class="text-muted">Forgot you password? Reset you password
                   <a href="/login/forgot-password" class="text-info text-gradient font-weight-bold">here</a>
                 </small>
                   <p class="mb-4 text-sm mx-auto">

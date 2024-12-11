@@ -34,7 +34,6 @@ class ShoppingCartController extends Controller
             )
             ->distinct()
             ->get();
-
         foreach ($partsInformations as $part) {
             $existingCartItem = Cart::where('part_id', $part->part_id)
                 ->where('group_id', $groupId)
@@ -79,7 +78,7 @@ class ShoppingCartController extends Controller
             ->where('user_role', $currentUser->role)
             ->where('user_id', $currentUser->id)
             ->get();
-        return view('shopping-cart.list', compact('existingCartItem'));
+        return view('layouts.content.list.shopping-cart', compact('existingCartItem'));
 
     }
 

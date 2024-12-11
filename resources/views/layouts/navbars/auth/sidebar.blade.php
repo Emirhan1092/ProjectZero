@@ -92,6 +92,28 @@
                 </a>
             </li>
             <li class="nav-item">
+                <a class="nav-link" data-bs-toggle="collapse" href="#vehiclesMenu" role="button" aria-expanded="false" aria-controls="vehiclesMenu">
+                    <div class="icon icon-shape icon-sm shadow border-radius-md bg-white text-center me-2 d-flex align-items-center justify-content-center">
+                        <i class="fa-solid fa-car" style="color: black;"></i>
+                    </div>
+                    <span class="nav-link-text ms-1">Vehicles</span>
+                </a>
+                <div class="collapse" id="vehiclesMenu">
+                    <ul class="nav ms-4 ps-3">
+                        <li class="nav-item">
+                            <a class="nav-link {{ (Request::is('vehicles.list') ? 'active' : '') }}" href="{{ route('vehicles.list') }}">
+                                <span class="nav-link-text ms-1">Vehicle List</span>
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link {{ (Request::is('vehicles.create') ? 'active' : '') }}" href="{{ route('vehicles.create') }}">
+                                <span class="nav-link-text ms-1">Vehicle Create</span>
+                            </a>
+                        </li>
+                    </ul>
+                </div>
+            </li>
+            <li class="nav-item">
                 <a class="nav-link" data-bs-toggle="collapse" href="#usersMenu" role="button" aria-expanded="false" aria-controls="usersMenu">
                     <div class="icon icon-shape icon-sm shadow border-radius-md bg-white text-center me-2 d-flex align-items-center justify-content-center">
                         <svg width="12px" height="12px" viewBox="0 0 46 42" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">

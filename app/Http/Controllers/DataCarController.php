@@ -10,6 +10,8 @@ use App\Models\Car;
 use App\Models\CarPart;
 use App\Models\CarSchemas;
 use App\Models\CarSubGroup;
+use App\Models\User;
+use App\Models\Vehicle;
 use Dflydev\DotAccessData\Data;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -84,11 +86,35 @@ class DataCarController extends Controller
         $selectedValues = json_decode($request->input('selectedValues', '[]'), true);
 
         if (empty($selectedValues)) {
-            return response()->json([]);
+            $allCars = CarFilter::where('model_name', $modelName)->get();
+            $carData = $allCars->groupBy('car_id')->map(function ($logItems) {
+                $result = [];
+
+                foreach ($logItems as $logItem) {
+                    $result[] = [
+                        'key'   => $logItem->name,
+                        'value' => $logItem->value
+                    ];
+                }
+
+                $car = Car::where('car_id', $logItems->first()->car_id)->first();
+                if ($car) {
+                    $result['car_id'] = $logItems->first()->car_id;
+                    $result['Name'] = $car->name;
+                    $result['Brand'] = $car->brand_name;
+                }
+
+                return $result;
+            });
+
+            $carData = $carData->filter(function ($car) {
+                return $car !== null;
+            });
+
+            return response()->json($carData->values());
         }
 
         $query = CarFilter::where('model_name', $modelName);
-
         $log2 = $query->get();
         foreach ($selectedValues as $selectedValue) {
             $filteredLog2 = collect();
@@ -133,6 +159,7 @@ class DataCarController extends Controller
 
         return response()->json($carData->values());
     }
+
 
     public function carGroupList(Request $request)
     {
@@ -188,6 +215,28 @@ class DataCarController extends Controller
         return $subGroupNames;
     }
 
+    public function addAndSelectUser()
+
+{
+    $users = User::all();
+
+    $data = $users->map(function ($user) {
+        return [
+            'name' => $user->name,
+             'id' => $user->id,
+        ];
+    });
+
+    return response()->json(['users' => $data]);
+}
+
+    public function carOption(int $userId)
+    {$car_informations = Vehicle::where('user_id', $userId)->get(['VIN' , 'id']);
+        return response()->json(['cars' => $car_informations]);
+
+    }
+
+
 
 
 
@@ -231,7 +280,7 @@ class DataCarController extends Controller
         $catalogs = CarCatalog::all();
         $models = CarModel::all();
 
-        return view('cars.catalog.list', compact('catalogs', 'models'));
+        return view('layouts.content.list.cars-catalog', compact('catalogs', 'models'));
     }
 
 

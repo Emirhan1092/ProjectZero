@@ -27,6 +27,6 @@ class CarOwnerController extends Controller
             })->paginate(10);
 
 
-        return view('roles.car-owners.list', compact('carOwners'));
+        return view('layouts.content.list.car-owners', compact('carOwners'));
     }
 }

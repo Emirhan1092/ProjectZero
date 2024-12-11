@@ -82,7 +82,7 @@
                 @foreach($users as $user)
                     <tr>
                         <td class="text-end">
-                            <img src="{{ asset('assets/img/team-4.jpg') }}" class="avatar avatar-sm me-3" alt="User Image">
+                            <img src="{{ $user->image ?? asset('assets/img/team-4.jpg') }}" class="avatar avatar-sm me-3" alt="User Image">
                         </td>
                         <td class="text-end">
                             <p class="text-xs font-weight-bold mb-0 m-3 ">{{ $user->id }}</p>
@@ -90,8 +90,9 @@
                         <td class="text-end">
                             <p class="text-xs font-weight-bold mb-0 m-3 ">{{ $user->role_id }}</p>
                         </td>
+
                         <td class="text-end">
-                            <p class="text-xs font-weight-bold mb-0 m-3 ">{{ $user->role }}</p>
+                            <p class="text-xs font-weight-bold mb-0 m-3 ">{{ $user->role}}</p>
                         </td>
                         <td class="text-end">
                             <p class="text-xs font-weight-bold mb-0 m-3" >{{ $user->name }}</p>

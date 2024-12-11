@@ -22,12 +22,9 @@ class RepairmanController extends Controller
                     ->where('status', 'LIKE', '%' . $request->status . '%')
                     ->where('star', 'LIKE', '%' . $request->star . '%')
                     ->where('start_date', 'LIKE', '%' . $request->start_date . '%');
-
-
-
             })->paginate(10);
 
 
-        return view('roles.repairmans.list', compact('repairmans'));
+        return view('layouts.content.list.repairmans', compact('repairmans'));
     }
 }

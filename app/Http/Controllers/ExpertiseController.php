@@ -27,6 +27,6 @@ class ExpertiseController extends Controller
             })->paginate(10);
 
 
-        return view('roles.experts.list', compact('experts'));
+        return view('layouts.content.list.experts', compact('experts'));
     }
 }

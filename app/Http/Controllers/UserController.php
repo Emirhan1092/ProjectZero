@@ -8,7 +8,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 use Spatie\Permission\Models\Role;
-
+use App\Facades\UserRole;
 class UserController extends Controller
 {
     public function list(Request $request)
@@ -25,27 +25,27 @@ class UserController extends Controller
         })->paginate(10);
 
 
-        return view('roles.users.list', compact('users'));
+        return view('layouts.content.list.users', compact('users'));
     }
 
     public function create()
     {
         $users = User::all();
 
-        return view('roles.users.create-update', compact('users'));
+        return view('layouts.content.create-update.users', compact('users'));
     }
     public function edit(Request $request, int $userID)
     {
         $user = User::find($userID);
 
         if (!$user) {
-            return redirect()->route('user.list')->with('error', 'Kullanıcı bulunamadı.');
+            return redirect()->route('layouts.content.list.users')->with('error', 'Kullanıcı bulunamadı.');
         }
 
 
 
 
-        return view('roles.users.create-update', compact('user')
+        return view('layouts.content.create-update.users', compact('user')
 
         );
     }
@@ -138,7 +138,7 @@ class UserController extends Controller
         if($request->hasFile("image")) {
             if($user && $user->image)
             {
-                Storage::disk('public')->delete($user->image); // Eski görseli sil
+                Storage::disk('public')->delete($user->image);
 
             }
                 $data["image"] = $publicPath . "/" . $fileName;

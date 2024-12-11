@@ -25,7 +25,7 @@ class LawyerController extends Controller
             })->paginate(10);
 
 
-        return view('roles.lawyers.list', compact('lawyers'));
+        return view('layouts.content.list.lawyers', compact('lawyers'));
     }
 
 }
