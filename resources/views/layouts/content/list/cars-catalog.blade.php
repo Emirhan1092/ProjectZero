@@ -266,6 +266,32 @@
             height: auto;
         }
 
+        #alert {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            z-index: 2000;
+            display: none;
+            background-color: #f8d7da;
+            color: #721c24;
+            padding: 20px;
+            border-radius: 5px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /
+        }
+        #alert2 {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            z-index: 2000;
+            display: none;
+            background-color: #0d6efd;
+            color: #721c24;
+            padding: 20px;
+            border-radius: 5px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
 
     </style>
     <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/1.12.1/css/jquery.dataTables.min.css">
@@ -287,6 +313,13 @@
     </div>
 
 <div id="modalParametersList"></div>
+    <div id="alert" class="alert alert-warning alert-dismissible fade show" role="alert" style="display:none;">
+
+    </div>
+
+    <div  id="alert2" class="alert alert-info alert-dismissible fade show" role="alert" style="display:none;">
+
+    </div>
 
 
 
@@ -351,20 +384,17 @@
             let addCarsPartsList = [];
 
             function addOrUpdateCustomerCar(addCarsPartsList, selectedCustomerId, selectedCarId, partId = null, groupId = null) {
-                // İlk başta sadece customerId ve customerCarId ile arama yap
                 let existingEntry = addCarsPartsList.find(item =>
                     item.customerId === selectedCustomerId && item.customerCarId === selectedCarId
                 );
 
                 if (!existingEntry) {
-                    // Eğer yoksa sadece customerId ve customerCarId ile ekle
                     addCarsPartsList.push({
                         'customerId': selectedCustomerId,
                         'customerCarId': selectedCarId,
                     });
                 }
 
-                // Eğer partId ve groupId varsa, ekle veya güncelle
                 if (partId && groupId) {
                     let partEntry = addCarsPartsList.find(item =>
                         item.customerId === selectedCustomerId &&
@@ -379,10 +409,10 @@
                             'customerCarId': selectedCarId,
                             'partId': partId,
                             'groupId': groupId,
-                            'count': 0  // Başlangıçta count 0 olabilir
+                            'count': 0
                         });
                     } else {
-                        partEntry.count = partEntry.count || 0; // mevcut count varsa, yoksa 0 olarak başlat
+                        partEntry.count = partEntry.count || 0;
                     }
                 }
 
@@ -404,6 +434,8 @@
             }
 
             $(document).on('click', '#addCarsPartButton, #justShowCarsButton', function () {
+                var buttonRemove = $('#addCarPartsToCartButton');
+                buttonRemove.remove();
                 var Id = $(this).attr('id');
 
                 if (Id === 'addCarsPartButton') {
@@ -439,7 +471,7 @@
                                 </div>
                                 <div class="modal-footer">
                                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-                                    <button type="button" id="selectCustomerAndCar" class="btn btn-primary">Seçimi Onayla</button>
+                                    <button type="button" id="selectCustomerAndCar" data-bs-dismiss="modal" class="btn btn-primary">Seçimi Onayla</button>
 
 </div>
                             </div>
@@ -540,15 +572,39 @@
                 if (selectedCar.length > 0 && selectedCustomer.length > 0 ) {
                     var selectedCustomerId = selectedCustomer.data('id');
                     var selectedCarId = selectedCar.data('id');
+
+
                     if (selectedCustomerId && selectedCarId) {
                         console.log("selectedCustomerId:", selectedCustomerId, "selectedCarId:", selectedCarId);
                         addOrUpdateCustomerCar(addCarsPartsList , selectedCustomerId , selectedCarId);
+                        var alertBox2 = document.getElementById("alert2");
+
+                        if (alertBox2) {
+                            alertBox2.innerHTML = '<h4 class="alert-heading"></h4><p>Kullanıcı veya Araç Seçimi Yapıldı </p>';
+                            alertBox2.style.display = "block";
+
+                            setTimeout(function() {
+                                alertBox2.style.display = "none";
+                            }, 3000);
+                        }
                         console.log(addCarsPartsList);
 
                     } else {
-                        console.error("Seçim yapılmadı veya geçersiz değer.");
+                        var alertBox = document.getElementById("alert");
+
+                        if (alertBox) {
+                            alertBox.innerHTML = '<h4 class="alert-heading">HATA</h4><p>Kullanıcı veya Araç Seçimi Yapmadınız</p>';
+                            alertBox.style.display = "block";
+
+                            setTimeout(function() {
+                                alertBox.style.display = "none";
+                            }, 3000);
+                        }
+
+
                     }
                 }
+
             });
             var createForData = [];
             $(document).on('change', '#modelSelect', function () {
@@ -820,7 +876,7 @@
                 var container = $('#parametersSelectContainer3');
                 container.empty();
                 var container2 = $('#modal-body');
-                container2.empty();
+                container2.remove();
                 dataTable.empty();
                 var modalHeader = $('<div class="row" id="modal-body"></div>');
                 modalHeader.insertBefore('#footer')
@@ -969,6 +1025,7 @@
 
                             subGroupList.toggle();
                         });
+                        addCarPartsToCartButtons();
                     }
                 });
 
@@ -1026,7 +1083,6 @@
 
                     if (subname.partInformations && subname.partInformations.length > 0) {
                         var data = subname.partInformations.map(function (partInforma) {
-                            console.log("data", data);
                             return {
 
                                 partName: partInforma.partName,
@@ -1046,7 +1102,6 @@
                         var data = [];
                         subname.children.forEach(function (partInfo) {
                             partInfo.partInformations.forEach(function (partInfor) {
-                                console.log("data", data);
 
                                 data.push({
                                     partName: partInfor.partName,
@@ -1125,6 +1180,7 @@
                 modalList.empty();
                 modalHeader.empty();
 
+                console.log("response for cars" , response);
                 var groupItem = $('<ul class="list-group-item22 text-align:left" id="group-' + response[0].brand_name + '" style="text-align:left;">' +
                     '<br><strong>' + response[0].brand_name + '</strong> ' +
                     '<strong>' + response[0].name + '</strong></br>' +
@@ -1167,11 +1223,11 @@
                             <span>${parts.part_id.replace(/\s+/g, '-')}</span>
                         </span>
                         <div class="d-flex align-items-center">
-                            <button class="btn btn-link p-0 ms-3 decrement" id="decrement_${parts.part_id.replace(/\s+/g, '-')}-${parts.group_id}-${parts.car_id}" style="font-size: 20px; cursor: pointer;">
+                            <button class="btn btn-link p-0 ms-3 decrement" id="decrement_${parts.part_id}-${parts.group_id}-${parts.car_id}" style="font-size: 20px; cursor: pointer;">
                                 <i class="fa-solid fa-minus" style="color:black"></i>
                             </button>
                             <span class="part-count mx-2" id="count_${parts.part_id.replace(/\s+/g, '-')}" style="font-size: 16px;">0</span>
-                            <button class="btn btn-link p-0 ms-3 increment" id="increment_${parts.part_id}-${parts.group_id}-${parts.car_id}" style="font-size: 20px; cursor: pointer;">
+                            <button class="btn btn-link p-0 ms-3 increment" id="increment_${parts.part_id}/${parts.group_id}/${parts.car_id}" style="font-size: 20px; cursor: pointer;">
                                 <i class="fa-solid fa-plus" style="color:black"></i>
                             </button>
                         </div>
@@ -1189,20 +1245,29 @@
                 });
             }
 
+            function addCarPartsToCartButtons() {
+                var buttonRemove = $('#addCarPartsToCartButton');
+                buttonRemove.remove();
+                var buttonsDiv =   $('<div class="buttons d-flex justify-content-between" id="addCarPartsToCartButton"> </div>');
+                var addCarPartsToCartButton = $('<button id="addCarPartsToCartButton" class="btn btn-primary mt-3 mx-auto d-grid col-4 mx-auto" >Add Car Parts To Cart</button>');
+                buttonsDiv.append(addCarPartsToCartButton);
+                buttonsDiv.insertAfter('#modal-body');
+
+            }
             $(document).on('click', '[id^="increment_"], [id^="decrement_"]', function () {
                 var id = $(this).attr('id');
                 var action = id.startsWith('increment_') ? 'increment' : 'decrement';
-                var parts = id.replace(/(increment_|decrement_)/, '').split('-');
-                var part_id = parts[0].replace(/\s+/g, '-');
+                var parts = id.replace(/(increment_|decrement_)/, '').split('/');
+                var part_id = parts[0]
+                var part_id_for_count = parts[0].replace(/\s+/g, '-');  // tüm boşlukları '-' ile değiştir
                 var group_id = parts[1];
                 var car_id = parts[2];
 
 
-                var countSpan = $(`#count_${part_id}`);
+                var countSpan = $(`#count_${part_id_for_count}`);
                 console.log("countSpan" , countSpan.attr('id'));
 
-                var currentCount = countSpan.text();
-
+                var currentCount = parseInt(countSpan.text(), 10);
 
                 if (action === 'increment') {
                     currentCount++;
@@ -1214,9 +1279,30 @@
 
                 let existingEntry = addCarsPartsList.find(item => item.part_id === part_id && item.group_id === group_id && item.car_id === car_id);
 
-                if (existingEntry) {
+                let userAndCarInformations = addCarsPartsList.find(item =>
+                    'customerId' in item && 'customerCarId' in item
+                );
+
+                if (!userAndCarInformations) {
+                    var alertBox = document.getElementById("alert");
+
+                    if (alertBox) {
+                        alertBox.innerHTML = '<h4 class="alert-heading">HATA</h4><p>Kullanıcı ve Araç Seçimi Yapınız</p>';
+                        alertBox.style.display = "block";
+
+                        setTimeout(function() {
+                            alertBox.style.display = "none";
+                        }, 3000);
+                    }
+
+                    return;
+                }
+
+
+                else if (existingEntry) {
                     existingEntry.count = currentCount;
                 } else {
+
                     addCarsPartsList.push({
                         part_id: part_id,
                         group_id: group_id,
@@ -1225,7 +1311,31 @@
                     });
                 }
 
-                console.log('addCarsPartsList:', addCarsPartsList);
+
+
+                console.log("addCarPartsList" , addCarsPartsList);
+              $(document).on('click' , '#addCarPartsToCartButton' , function ()
+              {
+                  $.ajax({
+                      url: '/cars/car_parts_added/parameters',
+                      method: 'GET',
+                      data: {
+                          selectedValues: JSON.stringify(addCarsPartsList),
+                      },
+                      traditional: true,
+                      success: function (response) {
+                          console.log('Sunucudan gelen yanıt:', response);
+
+                      },
+                      error: function (xhr, status, error) {
+                          console.error('AJAX hatası:', status, error);
+                          alert('Bir hata oluştu!');
+                      }
+                  });
+
+              });
+
+
             });
             });
 

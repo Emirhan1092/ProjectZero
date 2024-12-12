@@ -10,6 +10,7 @@ use App\Models\Car;
 use App\Models\CarPart;
 use App\Models\CarSchemas;
 use App\Models\CarSubGroup;
+use App\Models\Cart;
 use App\Models\User;
 use App\Models\Vehicle;
 use Dflydev\DotAccessData\Data;
@@ -92,7 +93,7 @@ class DataCarController extends Controller
 
                 foreach ($logItems as $logItem) {
                     $result[] = [
-                        'key'   => $logItem->name,
+                        'key' => $logItem->name,
                         'value' => $logItem->value
                     ];
                 }
@@ -138,7 +139,7 @@ class DataCarController extends Controller
 
             foreach ($logItems as $logItem) {
                 $result[] = [
-                    'key'   => $logItem->name,
+                    'key' => $logItem->name,
                     'value' => $logItem->value
                 ];
             }
@@ -217,46 +218,42 @@ class DataCarController extends Controller
 
     public function addAndSelectUser()
 
-{
-    $users = User::all();
+    {
+        $users = User::all();
 
-    $data = $users->map(function ($user) {
-        return [
-            'name' => $user->name,
-             'id' => $user->id,
-        ];
-    });
+        $data = $users->map(function ($user) {
+            return [
+                'name' => $user->name,
+                'id' => $user->id,
+            ];
+        });
 
-    return response()->json(['users' => $data]);
-}
+        return response()->json(['users' => $data]);
+    }
 
     public function carOption(int $userId)
-    {$car_informations = Vehicle::where('user_id', $userId)->get(['VIN' , 'id']);
+    {
+        $car_informations = Vehicle::where('user_id', $userId)->get(['VIN', 'id']);
         return response()->json(['cars' => $car_informations]);
 
     }
 
 
-
-
-
-
-
     public function getParametersByPartGroup(Request $request)
     {
         $random1 = $request->input('partGroupId');
-        $partsInformations = CarPart::join( 'catalog_car_schemas','catalog_car_schemas.part_group_id'  ,'=' , 'catalog_car_parts.group_id' )
+        $partsInformations = CarPart::join('catalog_car_schemas', 'catalog_car_schemas.part_group_id', '=', 'catalog_car_parts.group_id')
             ->join('catalog_cars', 'catalog_cars.car_id', '=', 'catalog_car_parts.car_id')
-            ->join('catalog_models', 'catalog_cars.model_name', '=' , 'catalog_models.name')
+            ->join('catalog_models', 'catalog_cars.model_name', '=', 'catalog_models.name')
             ->where('catalog_car_parts.group_id', $random1)
-            ->select('catalog_car_parts.part_id' ,
-                'catalog_car_parts.number' ,
-                'catalog_car_parts.name' ,
-                'catalog_car_parts.description' ,
-                'catalog_car_parts.car_id' ,
-                'catalog_car_parts.group_id' ,
+            ->select('catalog_car_parts.part_id',
+                'catalog_car_parts.number',
+                'catalog_car_parts.name',
+                'catalog_car_parts.description',
+                'catalog_car_parts.car_id',
+                'catalog_car_parts.group_id',
                 'catalog_car_parts.position_number'
-                ,'catalog_cars.brand_name',
+                , 'catalog_cars.brand_name',
                 'catalog_car_schemas.img as schema_img',
                 'catalog_models.img as model_img'
             )
@@ -264,12 +261,12 @@ class DataCarController extends Controller
         return response()->json($partsInformations);
     }
 
-    public function getShoppingCart($part_id , $group_id)
+    public function getShoppingCart($part_id, $group_id)
     {
-      $result = [
-          'part_id' => $part_id,
-          'group_id' => $group_id,
-      ];
+        $result = [
+            'part_id' => $part_id,
+            'group_id' => $group_id,
+        ];
 
         return response()->json($result);
     }
@@ -282,6 +279,58 @@ class DataCarController extends Controller
 
         return view('layouts.content.list.cars-catalog', compact('catalogs', 'models'));
     }
+
+    public function carPartsAdded(Request $request)
+    {
+        $selectedValues = json_decode($request->input('selectedValues', '[]'), true);
+
+        foreach ($selectedValues as $selectedValue) {
+            if (isset($selectedValue['customerCarId'])) {
+                $customer_car_id = $selectedValue['customerCarId'];
+            }
+            if (isset($selectedValue['customerId'])) {
+                $customer_id = $selectedValue['customerId'];
+            }
+            $part_id = $selectedValue['part_id'] ?? null;
+            $count = $selectedValue['count'] ?? null;
+            $car_id = $selectedValue['car_id'] ?? null;
+            $group_id = $selectedValue['group_id'] ?? null;
+
+            if ($part_id && $car_id && $group_id) {
+                $currentUser = auth()->user();
+                $car_ınformations = CarPart::where('part_id', $part_id)
+                    ->where('car_id', $car_id)
+                    ->where('group_id', $group_id)
+                    ->get();
+
+                if ($car_ınformations->isNotEmpty()) {
+                    foreach ($car_ınformations as $car_ınformation) {
+
+
+                        Cart::create([
+                            'added_by_user_name' => $currentUser->name,
+                            'added_by_user_id' => $currentUser->id,
+                            'added_by_user_role' => $currentUser->role,
+                            'customer_id' => $customer_id,
+                            'customer_car_id' => $customer_car_id,
+                            'car_id' => $car_ınformation->car_id,
+                            'group_id' => $car_ınformation->group_id,
+                            'part_id' => $car_ınformation->part_id,
+                            'img' => $car_ınformation->img,
+                            'number' => $car_ınformation->number,
+                            'count' => $count,
+                        ]);
+                    }
+                }
+            }
+        }
+
+        return redirect()->route('home')->with([
+            'success' => 'Tüm parçalar başarıyla sepete eklendi!',
+            'alert_message' => 'Sepete Eklendi'
+        ]);
+    }
+
 
 
 
