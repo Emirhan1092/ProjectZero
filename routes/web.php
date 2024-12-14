@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\AccidentController;
 use App\Http\Controllers\ChangePasswordController;
+use App\Http\Controllers\CustomerAndVehicleController;
 use App\Http\Controllers\DataCarController;
 use App\Http\Controllers\ExpertiseController;
 use App\Http\Controllers\HomeController;
@@ -96,10 +97,15 @@ Route::group(['middleware' => 'auth'], function () {
     Route::get('/repairmans/list' ,  [RepairmanController::class, 'list'])->name('repairmans.list');
     Route::get('/experts/list' ,  [ExpertiseController::class, 'list'])->name('experts.list');
 
+    Route::post('/customerAndVehicles/create', [CustomerAndVehicleController::class, 'store'])->name('customerAndVehicles.create');
+
+    Route::get('/customerAndVehicles/create', [CustomerAndVehicleController::class, 'create'])->name('customerAndVehicles.create');
+
+
     Route::get('/addAndSelectUser' , [DataCarController::class , 'addAndSelectUser'])->name('addAndSelectUser');
 
     Route::get('/carIdSelected/{userId}/parameters', [DataCarController::class, 'carOption'])->name('carOption');
-    Route::match(['get', 'post'] ,'/cars/car_parts_added/parameters' , [DataCarController::class, 'carPartsAdded'])->name('carPartsAdded');
+    Route::match(['get', 'post'] ,'/cars/catalog/car_parts_added/parameters' , [DataCarController::class, 'carPartsAdded'])->name('carPartsAdded');
 
     Route::get('static-sign-up', function () {
 		return view('static-sign-up');

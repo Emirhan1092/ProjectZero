@@ -456,7 +456,7 @@
                                 <div class="modal-header justify-content-between">
                                     <h5 class="modal-title font-weight-normal" id="exampleModalLabel">Müşteri Araç Seçimi</h5>
                                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                                    <button class="btn btn-info m-1" id="createUserButton">Müşteri Oluştur</button>
+                                    <button class="btn btn-info m-1" id="createUserButton">Müşteri ve Araç Oluştur</button>
                                     <button class="btn btn-info m-1" id="createVehicleButton">Araç Oluştur</button>
 
                                 </div>
@@ -493,7 +493,7 @@
             });
 
             $(document).on('click', '#createUserButton', function() {
-                window.open("{{ route('users.create') }}", "_blank");
+                window.open("{{ route('customerAndVehicles.create') }}", "_blank");
             });
 
             $(document).on('click', '#createVehicleButton', function() {
@@ -509,10 +509,9 @@
                 var carInfo = `
         <div id="carSelect2">
             <label for="carSelect" id="carSelectLabel">Select Car:</label>
-            <input list="carList" id="carSelect" class="form-control" placeholder="Search by VIN">
-            <datalist id="carList">
-                <option value="" id="defaultOption" disabled selected>Seçim Yapın</option>
-            </datalist>
+             <select class="form-control" id="carList">
+             <option value="" id="defaultOption" disabled selected>Seçim Yapın</option>
+            </select>
         </div>
     `;
                 $('.modal-body').append(carInfo);
@@ -527,14 +526,29 @@
                         url: '/carIdSelected/' + selectedId + '/parameters',
                         method: 'GET',
                         success: function (data) {
+                            var carList = $('#carList');
+                            carList.empty();
+                            var carDataList = $('.carDataList');
+                            carDataList.empty();
                             if (data && data.cars && data.cars.length > 0) {
                                 var carOptions = data.cars.map(function (car) {
-                                    return `<option value="${car.VIN}" data-id="${car.id}">${car.VIN}</option>`;
+                                    return `<option value="${car.VIN}" data-id="${car.id}" class="carDataList" >${car.VIN}</option>`;
                                 }).join('');
 
-                                $('#carList').append(carOptions);
+                                carList.append(carOptions);
                             } else {
                                 console.log("Araç bilgisi bulunamadı.");
+                                var alertBox = document.getElementById("alert");
+
+                                if (alertBox) {
+                                    alertBox.innerHTML = '<h4 class="alert-heading">HATA</h4><p>Araç Bilgisi Bulunamadı</p>';
+                                    alertBox.style.display = "block";
+
+                                    setTimeout(function() {
+                                        alertBox.style.display = "none";
+                                    }, 3000);
+                                }
+
                                 var carSelect = $('#carSelect2');
                                 if (carSelect.length > 0) {
                                     carSelect.remove();
@@ -554,18 +568,30 @@
                     });
                 } else {
                     console.log('Geçerli bir seçenek seçilmedi');
+                    var alertBox = document.getElementById("alert");
+
+                    if (alertBox) {
+                        alertBox.innerHTML = '<h4 class="alert-heading">HATA</h4><p>Geçerli Bir Kullanıcı veya Araç Seçimi Yapmadınız</p>';
+                        alertBox.style.display = "block";
+
+                        setTimeout(function() {
+                            alertBox.style.display = "none";
+                        }, 3000);
+                    }
+
+
                 }
             });
 
             $(document).on('click', '#selectCustomerAndCar', function () {
                 var selectedName = $('#nameSelect').val();
-                var selectedCarVIN = $('#carSelect').val();
+                var selectedCarVIN = $('#carList').val();
 
                 var selectedCustomer = $('#nameList option[value="' + selectedName + '"]');
-                var selectedCar = $('#carList option').filter(function () {
-                    return $(this).val() === selectedCarVIN;
-                });
+                var selectedCar = $('#carList option[value="' + selectedCarVIN + '"]');
 
+
+                console.log("selectedCustomer "  ,selectedCustomer.data('id') , "selectedCar" , selectedCar.data('id'));
 
 
 
@@ -1259,7 +1285,7 @@
                 var action = id.startsWith('increment_') ? 'increment' : 'decrement';
                 var parts = id.replace(/(increment_|decrement_)/, '').split('/');
                 var part_id = parts[0]
-                var part_id_for_count = parts[0].replace(/\s+/g, '-');  // tüm boşlukları '-' ile değiştir
+                var part_id_for_count = parts[0].replace(/\s+/g, '-');
                 var group_id = parts[1];
                 var car_id = parts[2];
 
@@ -1316,22 +1342,27 @@
                 console.log("addCarPartsList" , addCarsPartsList);
               $(document).on('click' , '#addCarPartsToCartButton' , function ()
               {
-                  $.ajax({
-                      url: '/cars/car_parts_added/parameters',
-                      method: 'GET',
-                      data: {
-                          selectedValues: JSON.stringify(addCarsPartsList),
-                      },
-                      traditional: true,
-                      success: function (response) {
-                          console.log('Sunucudan gelen yanıt:', response);
 
-                      },
-                      error: function (xhr, status, error) {
-                          console.error('AJAX hatası:', status, error);
-                          alert('Bir hata oluştu!');
-                      }
-                  });
+
+
+                      $.ajax({
+                          url: '/cars/catalog/car_parts_added/parameters',
+                          type: 'POST',
+                          data: {
+                              _token: $('meta[name="csrf-token"]').attr('content'),
+                              selectedValues: JSON.stringify(addCarsPartsList),
+                          },
+                          success: function(response) {
+                              alert(response.message);
+                              alert(response.alert_message);
+
+                              window.location.href = response.redirect;
+                          },
+                          error: function(error) {
+                              console.log('Error:', error);
+                          }
+                      });
+
 
               });
 

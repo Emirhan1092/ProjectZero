@@ -324,10 +324,13 @@ class DataCarController extends Controller
                 }
             }
         }
+        session()->flash('success', 'Tüm parçalar başarıyla sepete eklendi!');
+        session()->flash('alert_message', 'Sepete Eklendi');
 
-        return redirect()->route('home')->with([
-            'success' => 'Tüm parçalar başarıyla sepete eklendi!',
-            'alert_message' => 'Sepete Eklendi'
+        return response()->json([
+            'message' => 'Tüm parçalar başarıyla sepete eklendi!',
+            'alert_message' => 'Sepete Eklendi',
+            'redirect' => route('catalog.list'),  // yönlendirme yapılacak rota
         ]);
     }
 

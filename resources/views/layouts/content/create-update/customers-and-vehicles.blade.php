@@ -2,7 +2,7 @@
 @extends('layouts.user_type.auth')
 
 @section("title")
-    Vehicle {{isset($vehicle) ?  'Update' : 'Create'}}
+    Customer And Vehicles Create
 @endsection
 
 @section('css')
@@ -15,42 +15,41 @@
             <div class="alert alert-danger">{{$error}}</div>
         @endforeach
     @endif
-    <form action="{{isset($vehicle) ? route('vehicles.update', ['id' => $vehicle->id]) : route('vehicles.store') }}" method="POST" enctype="multipart/form-data">
+    <form action="{{route('customerAndVehicles.create') }}"  method="POST" enctype="multipart/form-data">
         @csrf
-
-        @php
-            $vehicles2 = \App\Models\Vehicle::pluck('user_id')->unique();
-
-            $repairmans = [];
-
-            foreach ($vehicles2 as $vehicle2) {
-                $users[] = \App\Models\User::where('id', $vehicle2)->first();
-            }
-
-
-        @endphp
-
         <div class="form-group">
-            <label for="repairmanSelect ">Müşteri Seçiniz</label>
-            <select id="repairmanSelect " name="repairman_id" class="form-control form-control-lg @if($errors->has('user_id')) border-danger @endif">
-                <option value="" class="" disabled selected>Müşteri Seçiniz</option>
-                @foreach($users as $user)
-                    <option value="{{$user->id }}">
-                        {{ $user->name }}
-                    </option>
-                @endforeach
-            </select>
-            @if($errors->has('user_id'))
-                <div class="invalid-feedback">
-                    {{ $errors->first('user_id') }}
-                </div>
+            <label for="example-text-input" class="form-control-label">Customer Name</label>
+            <input class="form-control @if($errors->has('name')) border-danger @endif" type="text" value="Customer Name" name="name" id="customerName">
+            @if($errors->has('name'))
+                <div class="text-danger">{{ $errors->first('name') }}</div>
             @endif
         </div>
-        @php
-            $users = \App\Models\User::all();
+
+        <div class="form-group">
+            <label for="email" class="form-control-label">Email</label>
+            <input class="form-control @if($errors->has('email')) border-danger @endif" type="email" name="email" value="Email" id="email">
+            @if($errors->has('email'))
+                <div class="text-danger">{{ $errors->first('email') }}</div>
+            @endif
+        </div>
+        <div class="form-group">
+            <label for="phone_number" class="form-control-label">Phone Number</label>
+            <input class="form-control  @if($errors->has('phone_number')) border-danger @endif" type="number" value="Phone Number" name="phone_number" id="phone_number">
+            @if($errors->has('phone_number'))
+                <div class="text-danger">{{ $errors->first('phone_number') }}</div>
+            @endif
+        </div>
 
 
-        @endphp
+
+        <div class="form-group">
+            <label for="image" class="form-control-label">User Image</label>
+            <input class="form-control @if($errors->has('image')) border-danger @endif" type="file" name="image" id="image">
+            @if(isset($user) && $user->image)
+                <img src="{{ asset($user->image) }}" alt="Profile Image" class="img-fluid mt-2" style="max-height: 200px;">
+            @endif
+        </div>
+
 
 
         <div class="form-group">
@@ -95,7 +94,7 @@
 
         <div class="form-group">
             <label for="vehicle_register_plate" class="form-control-label">Vehicle Register Plate</label>
-            <input class="form-control @if($errors->has('model')) border-danger @endif" type="text" name="vehicle_register_plate" value="{{ isset($vehicle) ? $vehicle->vehicle_register_plate : '' }}" id="vehicle_register_plate">
+            <input class="form-control @if($errors->has('vehicle_register_plate')) border-danger @endif" type="text" name="vehicle_register_plate" value="{{ isset($vehicle) ? $vehicle->vehicle_register_plate : '' }}" id="vehicle_register_plate">
             @if($errors->has('vehicle_register_plate'))
                 <div class="text-danger">{{ $errors->first('vehicle_register_plate') }}</div>
             @endif
@@ -131,8 +130,9 @@
             @endif
         </div>
 
+
         <div class="col-12 align-items-center">
-            <button type="submit" class="btn btn-primary btn-lg">{{isset($vehicle) ? "Güncelle": "Kaydet"}}</button>
+            <button type="submit" class="btn btn-primary btn-lg">{{isset($accident) ? "Güncelle": "Kaydet"}}</button>
         </div>
     </form>
 

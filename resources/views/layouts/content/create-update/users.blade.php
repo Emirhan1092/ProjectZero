@@ -77,6 +77,10 @@
                 <img src="{{ asset($user->image) }}" alt="Profile Image" class="img-fluid mt-2" style="max-height: 200px;">
             @endif
         </div>
+
+
+
+
         <div class="col-12 align-items-center">
             <button type="submit" class="btn btn-primary btn-lg">{{isset($user) ? "Güncelle": "Kaydet"}}</button>
         </div>
