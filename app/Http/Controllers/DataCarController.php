@@ -246,18 +246,18 @@ class DataCarController extends Controller
             ->join('catalog_cars', 'catalog_cars.car_id', '=', 'catalog_car_parts.car_id')
             ->join('catalog_models', 'catalog_cars.model_name', '=', 'catalog_models.name')
             ->where('catalog_car_parts.group_id', $random1)
-            ->select('catalog_car_parts.part_id',
-                'catalog_car_parts.number',
-                'catalog_car_parts.name',
-                'catalog_car_parts.description',
-                'catalog_car_parts.car_id',
-                'catalog_car_parts.group_id',
-                'catalog_car_parts.position_number'
-                , 'catalog_cars.brand_name',
-                'catalog_car_schemas.img as schema_img',
-                'catalog_models.img as model_img'
-            )
+            ->selectRaw('DISTINCT catalog_car_parts.part_id,
+                 catalog_car_parts.number,
+                 catalog_car_parts.name,
+                 catalog_car_parts.description,
+                 catalog_car_parts.car_id,
+                 catalog_car_parts.group_id,
+                 catalog_car_parts.position_number,
+                 catalog_cars.brand_name,
+                 catalog_car_schemas.img as schema_img,
+                 catalog_models.img as model_img')
             ->get();
+
         return response()->json($partsInformations);
     }
 
@@ -284,6 +284,9 @@ class DataCarController extends Controller
     {
         $selectedValues = json_decode($request->input('selectedValues', '[]'), true);
 
+        $currentUser = auth()->user();
+        $uniqueKeys = [];
+        $createList = [];
         foreach ($selectedValues as $selectedValue) {
             if (isset($selectedValue['customerCarId'])) {
                 $customer_car_id = $selectedValue['customerCarId'];
@@ -296,41 +299,52 @@ class DataCarController extends Controller
             $car_id = $selectedValue['car_id'] ?? null;
             $group_id = $selectedValue['group_id'] ?? null;
 
-            if ($part_id && $car_id && $group_id) {
-                $currentUser = auth()->user();
-                $car_ınformations = CarPart::where('part_id', $part_id)
-                    ->where('car_id', $car_id)
-                    ->where('group_id', $group_id)
-                    ->get();
-
-                if ($car_ınformations->isNotEmpty()) {
-                    foreach ($car_ınformations as $car_ınformation) {
-
-
-                        Cart::create([
-                            'added_by_user_name' => $currentUser->name,
-                            'added_by_user_id' => $currentUser->id,
-                            'added_by_user_role' => $currentUser->role,
-                            'customer_id' => $customer_id,
-                            'customer_car_id' => $customer_car_id,
-                            'car_id' => $car_ınformation->car_id,
-                            'group_id' => $car_ınformation->group_id,
-                            'part_id' => $car_ınformation->part_id,
-                            'img' => $car_ınformation->img,
-                            'number' => $car_ınformation->number,
-                            'count' => $count,
-                        ]);
-                    }
-                }
+            if (!$part_id || !$car_id || !$group_id) {
+                continue;
             }
+
+            $uniqueKey = $part_id . '-' . $car_id . '-' . $group_id;
+
+            if (in_array($uniqueKey, $uniqueKeys)) {
+                continue;
+            }
+
+            $uniqueKeys[] = $uniqueKey;
+
+            $car_information = CarPart::where('part_id', $part_id)
+                ->where('car_id', $car_id)
+                ->where('group_id', $group_id)
+                ->first();
+
+            if (!$car_information) {
+                continue;
+            }
+
+            $createList[] = [
+                'added_by_user_name' => $currentUser->name,
+                'added_by_user_id' => $currentUser->id,
+                'added_by_user_role' => $currentUser->role,
+                'customer_id' => $customer_id,
+                'customer_car_id' => $customer_car_id,
+                'car_id' => $car_information->car_id,
+                'group_id' => $car_information->group_id,
+                'part_id' => $car_information->part_id,
+                'img' => $car_information->img,
+                'number' => $car_information->number,
+                'count' => $count,
+            ];
         }
-        session()->flash('success', 'Tüm parçalar başarıyla sepete eklendi!');
-        session()->flash('alert_message', 'Sepete Eklendi');
+
+        if (!empty($createList)) {
+            Cart::insert($createList);
+        }
+
+  ;
 
         return response()->json([
             'message' => 'Tüm parçalar başarıyla sepete eklendi!',
             'alert_message' => 'Sepete Eklendi',
-            'redirect' => route('catalog.list'),  // yönlendirme yapılacak rota
+            'redirect' => route('catalog.list'),
         ]);
     }
 

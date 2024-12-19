@@ -434,7 +434,7 @@
             }
 
             $(document).on('click', '#addCarsPartButton, #justShowCarsButton', function () {
-                var buttonRemove = $('#addCarPartsToCartButton');
+                var buttonRemove = $('.addCarPartsToCartButton');
                 buttonRemove.remove();
                 var Id = $(this).attr('id');
 
@@ -1249,7 +1249,7 @@
                             <span>${parts.part_id.replace(/\s+/g, '-')}</span>
                         </span>
                         <div class="d-flex align-items-center">
-                            <button class="btn btn-link p-0 ms-3 decrement" id="decrement_${parts.part_id}-${parts.group_id}-${parts.car_id}" style="font-size: 20px; cursor: pointer;">
+                            <button class="btn btn-link p-0 ms-3 decrement" id="decrement_${parts.part_id}/${parts.group_id}/${parts.car_id}" style="font-size: 20px; cursor: pointer;">
                                 <i class="fa-solid fa-minus" style="color:black"></i>
                             </button>
                             <span class="part-count mx-2" id="count_${parts.part_id.replace(/\s+/g, '-')}" style="font-size: 16px;">0</span>
@@ -1272,10 +1272,10 @@
             }
 
             function addCarPartsToCartButtons() {
-                var buttonRemove = $('#addCarPartsToCartButton');
+                var buttonRemove = $('.addCarPartsToCartButton');
                 buttonRemove.remove();
                 var buttonsDiv =   $('<div class="buttons d-flex justify-content-between" id="addCarPartsToCartButton"> </div>');
-                var addCarPartsToCartButton = $('<button id="addCarPartsToCartButton" class="btn btn-primary mt-3 mx-auto d-grid col-4 mx-auto" >Add Car Parts To Cart</button>');
+                var addCarPartsToCartButton = $('<button class="addCarPartsToCartButton btn btn-primary mt-3 mx-auto d-grid col-4 mx-auto" >Add Car Parts To Cart</button>');
                 buttonsDiv.append(addCarPartsToCartButton);
                 buttonsDiv.insertAfter('#modal-body');
 
@@ -1340,30 +1340,29 @@
 
 
                 console.log("addCarPartsList" , addCarsPartsList);
-              $(document).on('click' , '#addCarPartsToCartButton' , function ()
-              {
+                $(document).off('click', '.addCarPartsToCartButton').on('click', '.addCarPartsToCartButton', function (event) {
+                    {
+                        event.preventDefault();
 
 
+                        $.ajax({
+                            url: '/cars/catalog/car_parts_added/parameters',
+                            type: 'GET',
+                            data: {
+                                selectedValues: JSON.stringify(addCarsPartsList),
+                            },
+                            success: function (response) {
+                                alert(response.message);
+                                alert(response.alert_message);
 
-                      $.ajax({
-                          url: '/cars/catalog/car_parts_added/parameters',
-                          type: 'POST',
-                          data: {
-                              _token: $('meta[name="csrf-token"]').attr('content'),
-                              selectedValues: JSON.stringify(addCarsPartsList),
-                          },
-                          success: function(response) {
-                              alert(response.message);
-                              alert(response.alert_message);
+                                window.location.href = response.redirect;
+                            },
+                            error: function (error) {
+                                console.log('Error:', error);
+                            }
+                        });
 
-                              window.location.href = response.redirect;
-                          },
-                          error: function(error) {
-                              console.log('Error:', error);
-                          }
-                      });
-
-
+                    }
               });
 
 

@@ -8,10 +8,12 @@ use App\Http\Controllers\ExpertiseController;
 use App\Http\Controllers\HomeController;
 use App\Http\Controllers\CarOwnerController;
 
+use App\Http\Controllers\InformationController;
 use App\Http\Controllers\InfoUserController;
 use App\Http\Controllers\InsurerController;
 use App\Http\Controllers\LawyerController;
 use App\Http\Controllers\RegisterController;
+use App\Http\Controllers\RepairFilesController;
 use App\Http\Controllers\RepairmanController;
 use App\Http\Controllers\ResetController;
 use App\Http\Controllers\SessionsController;
@@ -97,13 +99,18 @@ Route::group(['middleware' => 'auth'], function () {
     Route::get('/repairmans/list' ,  [RepairmanController::class, 'list'])->name('repairmans.list');
     Route::get('/experts/list' ,  [ExpertiseController::class, 'list'])->name('experts.list');
 
-    Route::post('/customerAndVehicles/create', [CustomerAndVehicleController::class, 'store'])->name('customerAndVehicles.create');
-
+    Route::post('/customerAndVehicles/store', [CustomerAndVehicleController::class, 'store'])->name('customerAndVehicles.store');
     Route::get('/customerAndVehicles/create', [CustomerAndVehicleController::class, 'create'])->name('customerAndVehicles.create');
 
 
-    Route::get('/addAndSelectUser' , [DataCarController::class , 'addAndSelectUser'])->name('addAndSelectUser');
+    Route::get('/addInformationsFile/index' ,  [InformationController::class , 'index']);
+    Route::post('/addInformationsFile/Store' , [InformationController::class , 'store'])->name('addInformationsFile.store');
+    Route::get('/addInformationsFile/Delete' , [InformationController::class , 'delete'])->name('addInformationsFile.delete');
 
+    Route::get('/cartUserId/{userId}/parameters', [InformationController::class, 'getParametersByUser']);
+    Route::match(['get' , 'post'], '/update-part', [InformationController::class, 'updatePartCount']);
+
+    Route::get('/addAndSelectUser' , [DataCarController::class , 'addAndSelectUser'])->name('addAndSelectUser');
     Route::get('/carIdSelected/{userId}/parameters', [DataCarController::class, 'carOption'])->name('carOption');
     Route::match(['get', 'post'] ,'/cars/catalog/car_parts_added/parameters' , [DataCarController::class, 'carPartsAdded'])->name('carPartsAdded');
 
