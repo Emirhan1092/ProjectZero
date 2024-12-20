@@ -103,12 +103,12 @@ Route::group(['middleware' => 'auth'], function () {
     Route::get('/customerAndVehicles/create', [CustomerAndVehicleController::class, 'create'])->name('customerAndVehicles.create');
 
 
-    Route::get('/addInformationsFile/index' ,  [InformationController::class , 'index']);
-    Route::post('/addInformationsFile/Store' , [InformationController::class , 'store'])->name('addInformationsFile.store');
-    Route::get('/addInformationsFile/Delete' , [InformationController::class , 'delete'])->name('addInformationsFile.delete');
+
+    Route::get('/addInformations/create', [InformationController::class, 'create'])->name('addInformations.create');
+    Route::match(['get' , 'post'],'/addInformations/store', [InformationController::class, 'store'])->name('addInformations.store');
 
     Route::get('/cartUserId/{userId}/parameters', [InformationController::class, 'getParametersByUser']);
-    Route::match(['get' , 'post'], '/update-part', [InformationController::class, 'updatePartCount']);
+    Route::get( '/update-part', [InformationController::class, 'updatePartCount']);
 
     Route::get('/addAndSelectUser' , [DataCarController::class , 'addAndSelectUser'])->name('addAndSelectUser');
     Route::get('/carIdSelected/{userId}/parameters', [DataCarController::class, 'carOption'])->name('carOption');
