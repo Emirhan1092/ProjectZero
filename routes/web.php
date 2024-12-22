@@ -12,6 +12,7 @@ use App\Http\Controllers\InformationController;
 use App\Http\Controllers\InfoUserController;
 use App\Http\Controllers\InsurerController;
 use App\Http\Controllers\LawyerController;
+use App\Http\Controllers\LocationController;
 use App\Http\Controllers\RegisterController;
 use App\Http\Controllers\RepairFilesController;
 use App\Http\Controllers\RepairmanController;
@@ -85,6 +86,7 @@ Route::group(['middleware' => 'auth'], function () {
     Route::get('/accident/{id}/edit', [AccidentController::class, 'edit'])->name('accidents.edit');
     Route::get('/accident/create' , [AccidentController::class, 'create'])->name('accidents.create');
 
+    Route::get('/location' , [LocationController::class  ,'index'] )->name('location.index');
 
     Route::get('/vehicle/list' , [VehicleController::class, 'list'])->name('vehicles.list');
 

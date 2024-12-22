@@ -9,6 +9,7 @@ class Accident extends Model
 {
     use HasFactory;
 
+    protected $table = 'accidents';
     protected $guarded = ['id'] ;
 
     /**

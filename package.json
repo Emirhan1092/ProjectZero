@@ -20,6 +20,7 @@
     },
     "dependencies": {
         "alpinejs": "^3.14.3",
+        "base-64": "^1.0.0",
         "jquery": "^3.7.1"
     }
 }
