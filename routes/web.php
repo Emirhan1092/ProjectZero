@@ -4,6 +4,7 @@ use App\Http\Controllers\AccidentController;
 use App\Http\Controllers\ChangePasswordController;
 use App\Http\Controllers\CustomerAndVehicleController;
 use App\Http\Controllers\DataCarController;
+use App\Http\Controllers\EmailController;
 use App\Http\Controllers\ExpertiseController;
 use App\Http\Controllers\HomeController;
 use App\Http\Controllers\CarOwnerController;
@@ -88,8 +89,10 @@ Route::group(['middleware' => 'auth'], function () {
 
     Route::get('/location' , [LocationController::class  ,'index'] )->name('location.index');
 
+    Route::get('/send-welcome-email', [EmailController::class, 'sendWelcomeEmail']);
     Route::get('/vehicle/list' , [VehicleController::class, 'list'])->name('vehicles.list');
 
+    Route::get('/finalPdf' , [InformationController::class, 'showPDF'])->name('finalPdf');
     Route::post('/vehicle/store', [VehicleController::class, 'store'])->name('vehicles.store');
     Route::post('/vehicle/{id}/update', [VehicleController::class, 'update'])->name('vehicles.update');
     Route::get('/vehicle/{id}/edit', [VehicleController::class, 'edit'])->name('vehicles.edit');

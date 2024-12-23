@@ -227,7 +227,7 @@
                         <div class="container pt-5 pb-5">
                             <div class="row justify-content-md-center">
                                 <input class="mb-3" id="search" style="width: 350px;" type="text">
-                                <button type="button" class="btn btn-block bg-gradient-primary mb-3" style="width:1000px" id="search-button">Search</button>
+                                <button type="button" class="btn btn-block bg-gradient-primary mb-3" style="width:1000px" id="search-button">Konum Ara</button>
                             </div>
                             @php
 
@@ -400,7 +400,7 @@
 
                 <td>
                     <div class="form-check">
-                        <input class="form-check-input" type="checkbox" value="${partInformations.part_id}/${partInformations.count}" name="partInfo_${partInformations.part_id}" id="flexCheckIndeterminate">
+                        <input class="form-check-input" type="checkbox" value="${partInformations.part_id}/${partInformations.count}/${partInformations.part_group_id}/${partInformations.car_id}" name="partInfo_${partInformations.part_id}" id="flexCheckIndeterminate">
                         <label class="form-check-label" for="flexCheckIndeterminate">
                             Ekle
                         </label>
@@ -517,7 +517,7 @@
 
 
         $('#buttonToSendInsurance').on('click', function() {
-           $('form').submit(); // Formu gönder
+           $('form').submit();
        });
         $(document).on('click', '[id^="increment_"], [id^="decrement_"]', function () {
             var id = $(this).attr('id');

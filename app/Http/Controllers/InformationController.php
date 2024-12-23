@@ -4,9 +4,12 @@ namespace App\Http\Controllers;
 
 use App\Http\Requests\InformationFileRequest;
 use App\Models\Car;
+use App\Models\CarPart;
+use App\Models\CarSchemas;
 use App\Models\Cart;
 use App\Models\Insurer;
 use App\Models\User;
+use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
@@ -21,7 +24,24 @@ class InformationController extends Controller
         return view('layouts.content.create-update.information-files');
     }
 
-    public function store(InformationFileRequest $request)
+
+    public function generatePDF($finalResult)
+    {
+        $pdf = PDF::loadView('pdf.report', ['data' => $finalResult]);
+
+        $pdfContent = $pdf->output();
+        $title = "merhaba";
+        $body = "merhaba";
+        $subject ="merhaba";
+        $emailController = new EmailController();
+        $emailController->sendWelcomeEmail($title, $body, $subject, $pdfContent);
+        $pdf->save(storage_path('app/public/report.pdf'));
+
+        return $pdf->download('report.pdf');
+    }
+
+
+    public function store(Request $request)
     {
 
 
@@ -36,20 +56,24 @@ class InformationController extends Controller
 
         foreach ($Insurer as $key => $value) {
             $InsurerId = $value;
-            $Insurer = Insurer::where('id' , $InsurerId)->first();
+            $InsurerModel = Insurer::where('id', $InsurerId)->first();
             $InsurerInformations[] = [
                 'insurer_id' => $InsurerId,
-                'insurer_name' => $Insurer->name,
-                'insurer_address' => $Insurer->address,
+                'insurer_name' => $InsurerModel->insurer_name,
+                'insurer_address' => $InsurerModel->address,
+                'insurer_email' => $InsurerModel->email,
             ];
-
         }
+
+
+
 
         $files = $request->allFiles();
         $authName = auth()->user()->name;
         $authId = auth()->user()->id;
 
         $partInfo = [];
+
 
         $partInfoValues = collect($request->input())
             ->filter(function ($value, $key) {
@@ -64,13 +88,24 @@ class InformationController extends Controller
         $customerInformations = [];
         $customer = null;
         foreach ($partInfoValues as $key => $value) {
+
             $part_id = explode('/', $value)[0];
             $count = explode('/', $value)[1];
+            $part_group_id = explode('/', $value)[2];
+            $car_id = explode('/', $value)[3];
 
             $partInfo[] = [
                 'part_id' => $part_id,
+                'model_name' => Car::where('car_id', $car_id)->first()->model_name,
+                'brand_name' => Car::where('car_id', $car_id)->first()->brand_name,
+                'car_img' => CarPart::where('group_id', $part_group_id)
+                             ->where('car_id', $car_id)
+                             ->where('part_id', $part_id)
+                             ->first()->img,
                 'count' => $count,
+
             ];
+
             $customer =  Cart::where('part_id' , $part_id)->first();
 
 
@@ -125,6 +160,7 @@ class InformationController extends Controller
             'customer_informations' => $customerInformations,
             'insurer_informations' => $InsurerInformations,
         ];
+        $this->generatePDF($finalResult);
 
         $finalResult = $finalResult[0];
 
@@ -141,9 +177,11 @@ class InformationController extends Controller
             'customer_informations' => $customerInformations,
             'insurer_informations' => $insurerInformations,
         ]);
+
+
         return redirect()->route('addInformations.create')->with([
             'success' => 'İşlem Bşarılı!',
-            'alert_message' => 'Dosya Yükleme İşlemi Başarılı'
+            'alert_message' => 'Mail Gönderme Ve Kaydetme Başarılı'
         ]);
 
     }
